@@ -1244,3 +1244,440 @@ done_invertir:
 
 Introduce una cadena de texto: Hola Mundo
 La cadena invertida es: odnuM aloH
+
+
+## Verificar si una cadena es palíndromo
+### C# - Palindromo.cs
+
+```
+/*
+ * Title: Verificar si una cadena es palíndromo
+ * Filename: Palindromo.cs
+ * Autor: Sanchez Salinas Eduardo Josue
+ * Date: 2024-10-02
+ * Description: Programa que verifica si una cadena es un palíndromo.
+ * Input: Una cadena de texto desde la consola.
+ * Output: Mensaje indicando si la cadena es un palíndromo o no.
+ */
+
+using System;
+
+public class Program
+{
+    public static void Main()
+    {
+        // Solicitar al usuario que ingrese una cadena
+        Console.Write("Introduce una cadena: ");
+        string cadena = Console.ReadLine();
+
+        // Verificar si la cadena es palíndromo
+        if (EsPalindromo(cadena))
+        {
+            Console.WriteLine($"La cadena '{cadena}' es un palíndromo.");
+        }
+        else
+        {
+            Console.WriteLine($"La cadena '{cadena}' no es un palíndromo.");
+        }
+    }
+
+    // Función que verifica si una cadena es un palíndromo
+    public static bool EsPalindromo(string texto)
+    {
+        string cadenaReversa = new string(texto.Reverse().ToArray()); // Revertir la cadena
+        return texto.Equals(cadenaReversa, StringComparison.OrdinalIgnoreCase); // Comparar sin distinguir mayúsculas y minúsculas
+    }
+}
+
+```
+### Asamblador
+
+```
+section .data
+    msg_input db 'Introduce una cadena: ', 0
+    msg_palindrome db ' es un palíndromo.', 0
+    msg_not_palindrome db ' no es un palíndromo.', 0
+    newline db 10, 0
+
+section .bss
+    buffer resb 100        ; Reservar espacio para la cadena de texto
+    length resd 1          ; Longitud de la cadena
+    reversed_buffer resb 100 ; Buffer para la cadena invertida
+
+section .text
+    global _start
+
+_start:
+    ; Imprimir el mensaje para introducir la cadena
+    mov eax, 4          ; syscall para write
+    mov ebx, 1          ; descriptor de salida (stdout)
+    mov ecx, msg_input  ; puntero al mensaje
+    mov edx, 26         ; longitud del mensaje
+    int 0x80            ; interrupción del sistema
+
+    ; Leer la cadena desde la entrada
+    mov eax, 3          ; syscall para read
+    mov ebx, 0          ; descriptor de entrada (stdin)
+    mov ecx, buffer     ; puntero al buffer donde se almacena la cadena
+    mov edx, 100        ; tamaño máximo de caracteres a leer
+    int 0x80            ; interrupción del sistema
+
+    ; Calcular la longitud de la cadena
+    mov eax, buffer     ; puntero al buffer
+    mov ebx, 0          ; contador de longitud
+find_length:
+    cmp byte [eax + ebx], 0  ; comparar si el carácter es nulo (fin de la cadena)
+    je done_length          ; si es el fin de la cadena, salir
+    inc ebx                  ; incrementar el contador de longitud
+    jmp find_length          ; continuar buscando
+done_length:
+    mov [length], ebx        ; guardar la longitud de la cadena en 'length'
+
+    ; Invertir la cadena
+    mov eax, buffer          ; puntero al buffer original
+    mov ebx, reversed_buffer ; puntero al buffer para la cadena invertida
+    mov ecx, [length]        ; cargar la longitud de la cadena
+    dec ecx                  ; ajustar el índice (empezamos desde el final)
+reverse_loop:
+    cmp ecx, -1
+    jl done_reverse          ; si ya invertimos toda la cadena, salir
+    mov al, [eax + ecx]      ; cargar el carácter
+    mov [ebx + ( [length] - 1 - ecx )], al ; almacenar en el buffer invertido
+    dec ecx                  ; mover al siguiente carácter
+    jmp reverse_loop         ; continuar el bucle
+
+done_reverse:
+
+    ; Comparar la cadena original con la cadena invertida
+    mov eax, buffer          ; puntero a la cadena original
+    mov ebx, reversed_buffer ; puntero a la cadena invertida
+    mov ecx, [length]        ; longitud de la cadena
+    mov edx, 0               ; índice de comparación
+compare_loop:
+    cmp byte [eax + edx], [ebx + edx]  ; comparar los caracteres
+    jne not_palindrome       ; si no son iguales, no es palíndromo
+    inc edx                  ; mover al siguiente carácter
+    cmp edx, ecx             ; verificar si hemos llegado al final
+    jl compare_loop          ; continuar comparando
+
+    ; Si llegamos aquí, la cadena es un palíndromo
+    mov eax, 4               ; syscall para write
+    mov ebx, 1               ; descriptor de salida (stdout)
+    mov ecx, msg_palindrome  ; mensaje "es un palíndromo"
+    mov edx, 18              ; longitud del mensaje
+    int 0x80                 ; interrupción del sistema
+    jmp exit
+
+not_palindrome:
+    ; Si llegamos aquí, la cadena no es un palíndromo
+    mov eax, 4               ; syscall para write
+    mov ebx, 1               ; descriptor de salida (stdout)
+    mov ecx, msg_not_palindrome  ; mensaje "no es un palíndromo"
+    mov edx, 23              ; longitud del mensaje
+    int 0x80                 ; interrupción del sistema
+
+exit:
+    ; Salir del programa
+    mov eax, 1               ; syscall para exit
+    xor ebx, ebx             ; código de salida 0
+    int 0x80                 ; interrupción del sistema
+```
+### Corrida
+
+Introduce una cadena de texto: reconocer
+La cadena 'reconocer' es un palíndromo.
+
+## Encontrar el máximo en un arreglo
+### C# - MaxEnArreglo.cs
+
+```
+/*
+ * Title: Encontrar el máximo en un arreglo
+ * Filename: MaxEnArreglo.cs
+ * Autor: Sanchez Salinas Eduardo Josue
+ * Date: 2024-10-02
+ * Description: Programa que encuentra el valor máximo en un arreglo de enteros.
+ * Input: Un arreglo de enteros desde la consola.
+ * Output: El valor máximo encontrado en el arreglo.
+ */
+
+using System;
+
+public class Program
+{
+    public static void Main()
+    {
+        // Solicitar al usuario que ingrese los elementos del arreglo
+        Console.Write("Introduce los elementos del arreglo separados por espacio: ");
+        string input = Console.ReadLine();
+
+        // Convertir la entrada en un arreglo de enteros
+        int[] arreglo = Array.ConvertAll(input.Split(' '), int.Parse);
+
+        // Encontrar el máximo en el arreglo
+        int max = EncontrarMaximo(arreglo);
+
+        // Mostrar el valor máximo
+        Console.WriteLine($"El valor máximo en el arreglo es: {max}");
+    }
+
+    // Función que encuentra el valor máximo en un arreglo
+    public static int EncontrarMaximo(int[] arreglo)
+    {
+        int max = arreglo[0]; // Asumir que el primer elemento es el máximo
+
+        // Recorrer el arreglo para encontrar el valor máximo
+        foreach (int numero in arreglo)
+        {
+            if (numero > max)
+            {
+                max = numero;
+            }
+        }
+
+        return max;
+    }
+}
+```
+### Asamblador
+
+```
+
+section .data
+    msg_input db 'Introduce los elementos del arreglo separados por espacio: ', 0
+    msg_output db 'El valor máximo en el arreglo es: ', 0
+    newline db 10, 0
+
+section .bss
+    buffer resb 100        ; Buffer para almacenar la entrada del usuario
+    arreglo resd 20        ; Arreglo para almacenar hasta 20 enteros
+    length resd 1          ; Longitud del arreglo
+
+section .text
+    global _start
+
+_start:
+    ; Imprimir el mensaje para introducir los elementos del arreglo
+    mov eax, 4          ; syscall para write
+    mov ebx, 1          ; descriptor de salida (stdout)
+    mov ecx, msg_input  ; puntero al mensaje
+    mov edx, 49         ; longitud del mensaje
+    int 0x80            ; interrupción del sistema
+
+    ; Leer la entrada del usuario
+    mov eax, 3          ; syscall para read
+    mov ebx, 0          ; descriptor de entrada (stdin)
+    mov ecx, buffer     ; puntero al buffer donde se almacena la entrada
+    mov edx, 100        ; tamaño máximo de caracteres a leer
+    int 0x80            ; interrupción del sistema
+
+    ; Convertir la entrada a enteros y almacenarlos en el arreglo
+    mov eax, buffer     ; puntero al buffer
+    mov ebx, arreglo    ; puntero al arreglo
+    mov ecx, 0          ; índice del arreglo
+convert_loop:
+    ; Leer cada carácter de la entrada
+    mov al, [eax]       ; cargar un byte del buffer
+    cmp al, 20          ; comparar con el espacio (separador)
+    je store_number     ; si es un espacio, almacenar el número
+    cmp al, 10          ; comparar con el salto de línea
+    je done_input       ; si es el final de la entrada, terminar
+    inc eax             ; mover al siguiente carácter
+    jmp convert_loop
+
+store_number:
+    ; Almacenar el número en el arreglo
+    movzx edx, byte [eax-1]  ; cargar el número
+    sub edx, '0'             ; convertir de carácter a número
+    mov [ebx + ecx*4], edx   ; almacenar el número en el arreglo
+    inc ecx                  ; incrementar el índice
+    inc eax                  ; mover al siguiente carácter
+    jmp convert_loop
+
+done_input:
+    ; Encontrar el máximo en el arreglo
+    mov ecx, 0          ; índice del arreglo
+    mov edx, [arreglo]  ; cargar el primer elemento del arreglo
+    mov ebx, 1          ; número de elementos leídos
+
+find_max:
+    ; Comparar el siguiente número con el máximo actual
+    cmp edx, [arreglo + ebx*4] ; comparar el máximo con el siguiente número
+    jge continue_find
+    mov edx, [arreglo + ebx*4] ; actualizar el máximo
+
+continue_find:
+    inc ebx                  ; incrementar el índice
+    cmp ebx, [length]         ; verificar si hemos recorrido todo el arreglo
+    jl find_max
+
+    ; Imprimir el valor máximo
+    mov eax, 4              ; syscall para write
+    mov ebx, 1              ; descriptor de salida (stdout)
+    mov ecx, msg_output     ; mensaje
+    mov edx, 30             ; longitud del mensaje
+    int 0x80                ; interrupción del sistema
+
+    ; Mostrar el valor máximo
+    mov eax, 4              ; syscall para write
+    mov ebx, 1              ; descriptor de salida (stdout)
+    mov ecx, edx            ; valor máximo
+    mov edx, 4              ; longitud de un entero
+    int 0x80                ; interrupción del sistema
+
+    ; Salir del programa
+    mov eax, 1              ; syscall para exit
+    xor ebx, ebx            ; código de salida 0
+    int 0x80                ; interrupción del sistema
+
+```
+### Corrida
+
+Introduce los elementos del arreglo separados por espacio: 5 8 2 12 3 7
+El valor máximo en el arreglo es: 12
+
+## Encontrar el mínimo en un arreglo
+### C# - MinEnArreglo.cs
+
+```
+/*
+ * Title: Encontrar el mínimo en un arreglo
+ * Filename: MinEnArreglo.cs
+ * Autor: Sanchez Salinas Eduardo Josue
+ * Date: 2024-10-02
+ * Description: Programa que encuentra el valor mínimo en un arreglo de enteros.
+ * Input: Un arreglo de enteros desde la consola.
+ * Output: El valor mínimo encontrado en el arreglo.
+ */
+
+using System;
+
+public class Program
+{
+    public static void Main()
+    {
+        // Solicitar al usuario que ingrese los elementos del arreglo
+        Console.Write("Introduce los elementos del arreglo separados por espacio: ");
+        string input = Console.ReadLine();
+
+        // Convertir la entrada en un arreglo de enteros
+        int[] arreglo = Array.ConvertAll(input.Split(' '), int.Parse);
+
+        // Encontrar el mínimo en el arreglo
+        int min = EncontrarMinimo(arreglo);
+
+        // Mostrar el valor mínimo
+        Console.WriteLine($"El valor mínimo en el arreglo es: {min}");
+    }
+
+    // Función que encuentra el valor mínimo en un arreglo
+    public static int EncontrarMinimo(int[] arreglo)
+    {
+        int min = arreglo[0]; // Asumir que el primer elemento es el mínimo
+
+        // Recorrer el arreglo para encontrar el valor mínimo
+        foreach (int numero in arreglo)
+        {
+            if (numero < min)
+            {
+                min = numero;
+            }
+        }
+
+        return min;
+    }
+}
+```
+### Asamblador
+```
+section .data
+    msg_input db 'Introduce los elementos del arreglo separados por espacio: ', 0
+    msg_output db 'El valor mínimo en el arreglo es: ', 0
+    newline db 10, 0
+
+section .bss
+    buffer resb 100        ; Buffer para almacenar la entrada del usuario
+    arreglo resd 20        ; Arreglo para almacenar hasta 20 enteros
+    length resd 1          ; Longitud del arreglo
+
+section .text
+    global _start
+
+_start:
+    ; Imprimir el mensaje para introducir los elementos del arreglo
+    mov eax, 4          ; syscall para write
+    mov ebx, 1          ; descriptor de salida (stdout)
+    mov ecx, msg_input  ; puntero al mensaje
+    mov edx, 49         ; longitud del mensaje
+    int 0x80            ; interrupción del sistema
+
+    ; Leer la entrada del usuario
+    mov eax, 3          ; syscall para read
+    mov ebx, 0          ; descriptor de entrada (stdin)
+    mov ecx, buffer     ; puntero al buffer donde se almacena la entrada
+    mov edx, 100        ; tamaño máximo de caracteres a leer
+    int 0x80            ; interrupción del sistema
+
+    ; Convertir la entrada a enteros y almacenarlos en el arreglo
+    mov eax, buffer     ; puntero al buffer
+    mov ebx, arreglo    ; puntero al arreglo
+    mov ecx, 0          ; índice del arreglo
+convert_loop:
+    ; Leer cada carácter de la entrada
+    mov al, [eax]       ; cargar un byte del buffer
+    cmp al, 20          ; comparar con el espacio (separador)
+    je store_number     ; si es un espacio, almacenar el número
+    cmp al, 10          ; comparar con el salto de línea
+    je done_input       ; si es el final de la entrada, terminar
+    inc eax             ; mover al siguiente carácter
+    jmp convert_loop
+
+store_number:
+    ; Almacenar el número en el arreglo
+    movzx edx, byte [eax-1]  ; cargar el número
+    sub edx, '0'             ; convertir de carácter a número
+    mov [ebx + ecx*4], edx   ; almacenar el número en el arreglo
+    inc ecx                  ; incrementar el índice
+    inc eax                  ; mover al siguiente carácter
+    jmp convert_loop
+
+done_input:
+    ; Encontrar el mínimo en el arreglo
+    mov ecx, 0          ; índice del arreglo
+    mov edx, [arreglo]  ; cargar el primer elemento del arreglo
+    mov ebx, 1          ; número de elementos leídos
+
+find_min:
+    ; Comparar el siguiente número con el mínimo actual
+    cmp edx, [arreglo + ebx*4] ; comparar el mínimo con el siguiente número
+    jle continue_find
+    mov edx, [arreglo + ebx*4] ; actualizar el mínimo
+
+continue_find:
+    inc ebx                  ; incrementar el índice
+    cmp ebx, [length]         ; verificar si hemos recorrido todo el arreglo
+    jl find_min
+
+    ; Imprimir el valor mínimo
+    mov eax, 4              ; syscall para write
+    mov ebx, 1              ; descriptor de salida (stdout)
+    mov ecx, msg_output     ; mensaje
+    mov edx, 30             ; longitud del mensaje
+    int 0x80                ; interrupción del sistema
+
+    ; Mostrar el valor mínimo
+    mov eax, 4              ; syscall para write
+    mov ebx, 1              ; descriptor de salida (stdout)
+    mov ecx, edx            ; valor mínimo
+    mov edx, 4              ; longitud de un entero
+    int 0x80                ; interrupción del sistema
+
+    ; Salir del programa
+    mov eax, 1              ; syscall para exit
+    xor ebx, ebx            ; código de salida 0
+    int 0x80                ; interrupción del sistema
+```
+### Corrida
+Introduce los elementos del arreglo separados por espacio: 5 8 2 12 3 7
+El valor mínimo en el arreglo es: 2
+
