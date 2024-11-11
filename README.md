@@ -2586,3 +2586,285 @@ loop:
 end_gcd:
     ret                      // Retorna el MCD en x0
 ```
+## 31.-Mínimo Común Múltiplo (MCM)
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación del cálculo del Mínimo Común Múltiplo (MCM) usando el MCD en ARM64 Assembly
+// Entradas:
+//   x0 - Primer número (a)
+//   x1 - Segundo número (b)
+// Salida:
+//   x0 - MCM de a y b
+
+// Algoritmo en C# (para referencia)
+// int LCM(int a, int b) {
+//     int gcd = GCD(a, b); // Utiliza el MCD para calcular el MCM
+//     return (a / gcd) * b;
+// }
+
+.global lcm
+
+lcm:
+    // Calcula el MCD de a y b
+    mov x2, x0               // Copia a en x2
+    mov x3, x1               // Copia b en x3
+    bl gcd                   // Llama a la función gcd para obtener el MCD
+
+    // Calcula (a / MCD) * b
+    udiv x2, x0, x2          // x2 = a / MCD
+    mul x0, x2, x1           // x0 = (a / MCD) * b
+
+    ret                      // Retorna el MCM en x0
+```
+
+## 32.-Potencia (x^n)
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de cálculo de la potencia (x^n) usando recursión o bucles en ARM64 Assembly
+// Entradas:
+//   x0 - Base (x)
+//   x1 - Exponente (n)
+// Salida:
+//   x0 - Resultado de x^n
+
+// Algoritmo en C# (para referencia)
+// int Power(int x, int n) {
+//     if (n == 0) return 1;
+//     return x * Power(x, n - 1);
+// }
+
+.global power
+
+power:
+    cmp x1, 0                // Verifica si el exponente es 0
+    beq base_case            // Si n == 0, el resultado es 1
+
+    // Calcula x * x^(n-1)
+    sub x1, x1, 1            // Decrementa n (n - 1)
+    bl power                 // Llama recursivamente a power(x, n - 1)
+    mul x0, x0, x2           // Multiplica el resultado por x
+
+    ret                      // Retorna el resultado
+
+base_case:
+    mov x0, 1                // Si n == 0, el resultado es 1
+    ret                      // Retorna 1
+```
+
+## 33.-Suma de elementos en un arreglo
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de suma de elementos en un arreglo en ARM64 Assembly
+// Entradas:
+//   x0 - Puntero al arreglo
+//   x1 - Tamaño del arreglo
+// Salida:
+//   x0 - Suma de todos los elementos del arreglo
+
+// Algoritmo en C# (para referencia)
+// int SumArray(int[] arr) {
+//     int sum = 0;
+//     foreach (int num in arr) {
+//         sum += num;
+//     }
+//     return sum;
+// }
+
+.global sum_array
+
+sum_array:
+    mov x2, 0                // Inicializa la suma en x2 (suma = 0)
+    mov x3, 0                // Inicializa el índice en x3 (i = 0)
+
+loop:
+    cmp x3, x1               // Compara el índice con el tamaño del arreglo
+    bge end_sum              // Si el índice es mayor o igual que el tamaño, termina
+
+    ldr w4, [x0, x3, LSL #2] // Carga el elemento arr[i] en w4
+    add x2, x2, w4           // Suma el valor a la suma (suma += arr[i])
+
+    add x3, x3, 1            // Incrementa el índice (i++)
+    b loop                   // Repite el bucle
+
+end_sum:
+    mov x0, x2               // Retorna la suma en x0
+    ret                      // Finaliza la función
+```
+
+## 34.-Invertir los elementos de un arreglo
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de inversión de elementos de un arreglo en ARM64 Assembly
+// Entradas:
+//   x0 - Puntero al arreglo
+//   x1 - Tamaño del arreglo
+// Salida:
+//   El arreglo invertido en la misma posición de memoria
+
+// Algoritmo en C# (para referencia)
+// void ReverseArray(int[] arr) {
+//     int start = 0;
+//     int end = arr.Length - 1;
+//     while (start < end) {
+//         int temp = arr[start];
+//         arr[start] = arr[end];
+//         arr[end] = temp;
+//         start++;
+//         end--;
+//     }
+// }
+
+.global reverse_array
+
+reverse_array:
+    sub x2, x1, 1            // x2 = tamaño del arreglo - 1 (end = arr.Length - 1)
+    mov x3, 0                // x3 = índice inicial (start = 0)
+
+loop:
+    cmp x3, x2               // Compara si start < end
+    bge end_reverse          // Si start >= end, termina
+
+    // Intercambio arr[start] y arr[end]
+    ldr w4, [x0, x3, LSL #2]    // Carga arr[start] en w4
+    ldr w5, [x0, x2, LSL #2]    // Carga arr[end] en w5
+    str w5, [x0, x3, LSL #2]    // Guarda arr[end] en arr[start]
+    str w4, [x0, x2, LSL #2]    // Guarda arr[start] en arr[end]
+
+    add x3, x3, 1            // Incrementa start (start++)
+    sub x2, x2, 1            // Decrementa end (end--)
+    b loop                   // Repite el bucle
+
+end_reverse:
+    ret                      // Termina la función
+```
+## 35.-Rotación de un arreglo (izquierda/derecha)
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de rotación de un arreglo (izquierda/derecha) en ARM64 Assembly
+// Entradas:
+//   x0 - Puntero al arreglo
+//   x1 - Tamaño del arreglo
+//   x2 - Número de posiciones para rotar (positivo para derecha, negativo para izquierda)
+// Salida:
+//   El arreglo rotado en la misma posición de memoria
+
+// Algoritmo en C# (para referencia)
+// void RotateArray(int[] arr, int positions) {
+//     int n = arr.Length;
+//     positions = positions % n; // En caso de que las posiciones sean mayores que el tamaño del arreglo
+//     if (positions < 0) positions += n; // Si el desplazamiento es negativo, lo convierte a positivo
+//     int[] rotatedArr = new int[n];
+//     Array.Copy(arr, n - positions, rotatedArr, 0, positions);
+//     Array.Copy(arr, 0, rotatedArr, positions, n - positions);
+//     Array.Copy(rotatedArr, arr, n);
+// }
+
+.global rotate_array
+
+rotate_array:
+    mov x3, x1               // Copia el tamaño del arreglo en x3
+    mov x4, x2               // Copia las posiciones a rotar en x4
+
+    // Ajusta las posiciones para que estén en el rango [0, n-1]
+    udiv x5, x4, x3          // x5 = x2 / x1 (división de posiciones / tamaño)
+    mul x6, x5, x3           // x6 = x5 * x3
+    sub x4, x4, x6           // Ajusta x4 para que esté dentro del rango de tamaño
+
+    // Verifica si no hay rotación
+    cmp x4, 0
+    beq end_rotate           // Si no hay rotación, termina la función
+
+    // Realiza la rotación de los elementos a la derecha
+    mov x7, x1               // x7 = tamaño del arreglo
+    sub x7, x7, x4           // x7 = n - posiciones (esto es el número de elementos a mover al principio)
+
+    // Copia la parte final del arreglo al principio
+    ldr x8, [x0, x7, LSL #2] // Carga el primer elemento a mover en x8
+    str x8, [x0, x7, LSL #2] // Guarda el elemento en la nueva posición
+
+    add x8, x0, x4   // Continúa implementando la rotación con los otros 32 bits
+```
+## 36.-Encontrar el segundo elemento más grande
+
+```
+
+```
+## 37.-Implementar una pila usando un arreglo
+
+```
+
+```
+## 38.-Implementar una cola usando un arreglo
+
+```
+
+```
+
+## 39.-Convertir decimal a binario
+
+```
+
+```
+## 40.-Convertir binario a decimal
+
+```
+
+```
+## 41.-Conversión de decimal a hexadecimal
+
+```
+
+```
+## 42.-Conversión de hexadecimal a decimal
+
+```
+
+```
+## 43.-Calculadora simple (Suma, Resta, Multiplicación, División)
+
+```
+
+```
+## 44.-	Generación de números aleatorios (con semilla)
+
+```
+
+```
+## 45.-Verificar si un número es Armstrong
+
+```
+
+```
+## 46.-Encontrar prefijo común más largo en cadenas
+
+```
+
+```
+## 47.-Detección de desbordamiento en suma
+
+```
+
+```
+## 48.-Medir el tiempo de ejecución de una función
+
+```
+
+```
+## 49.-Leer entrada desde el teclado
+
+```
+
+```
+## 50.-Escribir en un archivo
+
+```
+```
