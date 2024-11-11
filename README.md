@@ -2191,4 +2191,398 @@ end_multiply:
     ret                       // Termina la multiplicación de matrices
 ```
 
+## 21.-Transposición de una matriz
 
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de transposición de una matriz en ARM64 Assembly
+// Entradas:
+//   x0 - Puntero a la matriz original (A)
+//   x1 - Puntero a la matriz transpuesta (B)
+//   x2 - Número de filas de la matriz A (M)
+//   x3 - Número de columnas de la matriz A (N)
+// Salida:
+//   La matriz B contendrá la transposición de la matriz A
+
+// Algoritmo en C# (para referencia)
+// void MatrixTranspose(int[,] A, int[,] B) {
+//     int rows = A.GetLength(0);
+//     int cols = A.GetLength(1);
+//     for (int i = 0; i < rows; i++) {
+//         for (int j = 0; j < cols; j++) {
+//             B[j, i] = A[i, j];
+//         }
+//     }
+// }
+
+.global matrix_transpose
+
+matrix_transpose:
+    mov x4, 0                // Inicializa el índice de filas de la matriz A (i = 0)
+row_loop:
+    cmp x4, x2                // Compara i con el número de filas de A
+    bge end_transpose         // Si i >= filasA, termina
+
+    mov x5, 0                // Inicializa el índice de columnas de la matriz A (j = 0)
+col_loop:
+    cmp x5, x3                // Compara j con el número de columnas de A
+    bge next_row              // Si j >= columnasA, pasa a la siguiente fila
+
+    // Calcula el índice del elemento (i, j) en A y (j, i) en B
+    mul x6, x4, x3            // x6 = i * N (índice de la fila de A)
+    add x6, x6, x5            // x6 = i * N + j (índice de A[i, j])
+
+    mul x7, x5, x2            // x7 = j * M (índice de la columna de B)
+    add x7, x7, x4            // x7 = j * M + i (índice de B[j, i])
+
+    ldr w8, [x0, x6, LSL #2]  // Carga A[i, j] en w8
+    str w8, [x1, x7, LSL #2]  // Guarda B[j, i] = A[i, j]
+
+    add x5, x5, 1             // Incrementa el índice de columnas (j++)
+    b col_loop                // Repite el bucle de columnas
+
+next_row:
+    add x4, x4, 1             // Incrementa el índice de filas (i++)
+    b row_loop                // Repite el bucle de filas
+
+end_transpose:
+    ret                       // Termina la transposición de la matriz
+```
+## 22.-Conversión de ASCII a entero
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de conversión de un carácter ASCII a entero en ARM64 Assembly
+// Entradas:
+//   x0 - Carácter ASCII (caracter en formato de byte)
+// Salida:
+//   x0 - El valor entero correspondiente al carácter ASCII
+
+// Algoritmo en C# (para referencia)
+// int ASCIItoInt(char c) {
+//     return c - '0';
+// }
+
+.global ascii_to_int
+
+ascii_to_int:
+    sub x0, x0, '0'           // Convierte el carácter ASCII a su valor entero
+    ret                        // Retorna el valor entero correspondiente
+```
+
+## 23.-Conversión de entero a ASCII
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de conversión de un entero a carácter ASCII en ARM64 Assembly
+// Entradas:
+//   x0 - Entero (valor numérico entre 0 y 9)
+// Salida:
+//   x0 - Carácter ASCII correspondiente al entero (valor entre '0' y '9')
+
+// Algoritmo en C# (para referencia)
+// char IntToASCII(int num) {
+//     return (char)(num + '0');
+// }
+
+.global int_to_ascii
+
+int_to_ascii:
+    add x0, x0, '0'           // Convierte el entero a su carácter ASCII correspondiente
+    ret                        // Retorna el carácter ASCII
+```
+## 24.-Calcular la longitud de una cadena
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de cálculo de la longitud de una cadena en ARM64 Assembly
+// Entradas:
+//   x0 - Puntero a la cadena (null terminada)
+// Salida:
+//   x0 - Longitud de la cadena (número de caracteres)
+
+// Algoritmo en C# (para referencia)
+// int StringLength(string str) {
+//     return str.Length;
+// }
+
+.global string_length
+
+string_length:
+    mov x1, 0                // Inicializa el contador de longitud (i = 0)
+loop:
+    ldrb w2, [x0, x1]        // Carga el siguiente byte de la cadena
+    cmp w2, 0                // Verifica si es el carácter nulo (fin de la cadena)
+    beq end_length           // Si es nulo, termina el cálculo
+    add x1, x1, 1            // Incrementa el contador de longitud
+    b loop                   // Repite el bucle
+
+end_length:
+    mov x0, x1               // La longitud de la cadena se encuentra en x1
+    ret                      // Retorna la longitud de la cadena
+```
+
+## 25.-Contar vocales y consonantes
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de conteo de vocales y consonantes en una cadena en ARM64 Assembly
+// Entradas:
+//   x0 - Puntero a la cadena (null terminada)
+// Salida:
+//   x0 - Número de vocales
+//   x1 - Número de consonantes
+
+// Algoritmo en C# (para referencia)
+// void CountVowelsAndConsonants(string str, out int vowels, out int consonants) {
+//     vowels = 0;
+//     consonants = 0;
+//     foreach (char c in str) {
+//         if ("aeiouAEIOU".Contains(c)) {
+//             vowels++;
+//         } else if (char.IsLetter(c)) {
+//             consonants++;
+//         }
+//     }
+// }
+
+.global count_vowels_and_consonants
+
+count_vowels_and_consonants:
+    mov x2, 0                // Inicializa el contador de vocales en x2
+    mov x3, 0                // Inicializa el contador de consonantes en x3
+loop:
+    ldrb w4, [x0]            // Carga el siguiente byte de la cadena
+    cmp w4, 0                // Verifica si es el carácter nulo (fin de la cadena)
+    beq end_count            // Si es nulo, termina el conteo
+
+    // Verifica si es una vocal
+    cmp w4, 'a'
+    beq is_vowel
+    cmp w4, 'e'
+    beq is_vowel
+    cmp w4, 'i'
+    beq is_vowel
+    cmp w4, 'o'
+    beq is_vowel
+    cmp w4, 'u'
+    beq is_vowel
+    cmp w4, 'A'
+    beq is_vowel
+    cmp w4, 'E'
+    beq is_vowel
+    cmp w4, 'I'
+    beq is_vowel
+    cmp w4, 'O'
+    beq is_vowel
+    cmp w4, 'U'
+    beq is_vowel
+
+    // Si no es vocal, verifica si es una consonante
+    blt not_letter
+    cmp w4, 'Z'
+    ble not_letter
+    add x3, x3, 1            // Incrementa el contador de consonantes
+
+not_letter:
+    add x0, x0, 1            // Avanza al siguiente carácter
+    b loop                   // Repite el bucle
+
+is_vowel:
+    add x2, x2, 1            // Incrementa el contador de vocales
+    b not_letter
+
+end_count:
+    mov x0, x2               // Retorna el número de vocales en x0
+    mov x1, x3               // Retorna el número de consonantes en x1
+    ret                      // Termina el conteo
+```
+
+## 26.- Operaciones AND, OR, XOR a nivel de bits
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de operaciones AND, OR, y XOR a nivel de bits en ARM64 Assembly
+// Entradas:
+//   x0 - Primer operando (A)
+//   x1 - Segundo operando (B)
+// Salidas:
+//   x0 - Resultado de la operación AND
+//   x1 - Resultado de la operación OR
+//   x2 - Resultado de la operación XOR
+
+// Algoritmo en C# (para referencia)
+// void BitwiseOperations(int A, int B, out int andResult, out int orResult, out int xorResult) {
+//     andResult = A & B;
+//     orResult = A | B;
+//     xorResult = A ^ B;
+// }
+
+.global bitwise_operations
+
+bitwise_operations:
+    // Operación AND (A & B)
+    and x0, x0, x1           // x0 = A & B
+
+    // Operación OR (A | B)
+    orr x1, x0, x1           // x1 = A | B (usando el resultado de AND temporalmente en x0)
+
+    // Operación XOR (A ^ B)
+    eor x2, x0, x1           // x2 = A ^ B (usando los resultados de AND y OR)
+
+    ret                       // Retorna los resultados en x0 (AND), x1 (OR), x2 (XOR)
+```
+
+## 27.-Desplazamientos a la izquierda y derecha
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de desplazamientos a la izquierda y derecha a nivel de bits en ARM64 Assembly
+// Entradas:
+//   x0 - Operando (valor numérico)
+//   x1 - Número de posiciones para desplazar
+// Salidas:
+//   x0 - Resultado del desplazamiento a la izquierda (x0 << x1)
+//   x1 - Resultado del desplazamiento a la derecha (x0 >> x1)
+
+// Algoritmo en C# (para referencia)
+// void ShiftOperations(int num, int positions, out int leftShift, out int rightShift) {
+//     leftShift = num << positions;
+//     rightShift = num >> positions;
+// }
+
+.global shift_operations
+
+shift_operations:
+    // Desplazamiento a la izquierda (num << positions)
+    mov x2, x0               // Copia el valor original en x2
+    lsl x0, x2, x1           // Desplazamiento a la izquierda: x0 = x2 << x1
+
+    // Desplazamiento a la derecha (num >> positions)
+    mov x2, x0               // Copia el resultado del desplazamiento a la izquierda en x2
+    lsr x1, x2, x1           // Desplazamiento a la derecha: x1 = x2 >> x1
+
+    ret                      // Retorna los resultados en x0 (izquierda), x1 (derecha)
+```
+## 28.-	Establecer, borrar y alternar bits
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de establecer, borrar y alternar bits a nivel de bits en ARM64 Assembly
+// Entradas:
+//   x0 - Operando (valor numérico)
+//   x1 - Posición del bit (índice, 0-based)
+// Salidas:
+//   x0 - Resultado después de establecer el bit
+//   x1 - Resultado después de borrar el bit
+//   x2 - Resultado después de alternar el bit
+
+// Algoritmo en C# (para referencia)
+// void BitManipulation(int num, int bitPosition, out int setBit, out int clearBit, out int toggleBit) {
+//     setBit = num | (1 << bitPosition);
+//     clearBit = num & ~(1 << bitPosition);
+//     toggleBit = num ^ (1 << bitPosition);
+// }
+
+.global bit_manipulation
+
+bit_manipulation:
+    // Establecer el bit en la posición x1
+    mov x2, x1               // Copia la posición del bit en x2
+    mov x3, 1                // Crea una máscara con el bit en la posición x1 activado
+    lsl x3, x3, x2           // x3 = 1 << x1 (máscara con el bit activado)
+    orr x0, x0, x3           // Establecer el bit: x0 = x0 | (1 << x1)
+
+    // Borrar el bit en la posición x1
+    mov x3, 1                // Crea una máscara con el bit activado
+    lsl x3, x3, x2           // x3 = 1 << x1 (máscara con el bit activado)
+    not x3, x3               // x3 = ~(1 << x1) (máscara para borrar el bit)
+    and x1, x0, x3           // Borrar el bit: x1 = x0 & ~(1 << x1)
+
+    // Alternar el bit en la posición x1
+    mov x3, 1                // Crea una máscara con el bit activado
+    lsl x3, x3, x2           // x3 = 1 << x1 (máscara con el bit activado)
+    eor x2, x0, x3           // Alternar el bit: x2 = x0 ^ (1 << x1)
+
+    ret                      // Retorna los resultados en x0 (establecer), x1 (borrar), x2 (alternar)
+```
+
+## 29.- Contar los bits activados en un número
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de contar los bits activados (1) en un número en ARM64 Assembly
+// Entradas:
+//   x0 - Operando (valor numérico)
+// Salida:
+//   x0 - Número de bits activados (1) en el número
+
+// Algoritmo en C# (para referencia)
+// int CountSetBits(int num) {
+//     int count = 0;
+//     while (num > 0) {
+//         count += num & 1;
+//         num >>= 1;
+//     }
+//     return count;
+// }
+
+.global count_set_bits
+
+count_set_bits:
+    mov x1, 0                // Inicializa el contador de bits activados (x1 = 0)
+loop:
+    and x2, x0, 1            // x2 = x0 & 1 (verifica el bit más bajo de x0)
+    add x1, x1, x2           // Incrementa el contador si el bit está activado
+    lsr x0, x0, 1            // Desplaza a la derecha x0 (x0 >>= 1)
+    cmp x0, 0                // Verifica si ya no quedan bits activados
+    bne loop                 // Si quedan bits activados, repite el bucle
+
+    mov x0, x1               // Retorna el número de bits activados en x0
+    ret                      // Termina la función
+```
+## 30.-	Máximo Común Divisor (MCD)
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación del cálculo del Máximo Común Divisor (MCD) usando el algoritmo de Euclides en ARM64 Assembly
+// Entradas:
+//   x0 - Primer número (a)
+//   x1 - Segundo número (b)
+// Salida:
+//   x0 - MCD de a y b
+
+// Algoritmo en C# (para referencia)
+// int GCD(int a, int b) {
+//     while (b != 0) {
+//         int temp = b;
+//         b = a % b;
+//         a = temp;
+//     }
+//     return a;
+// }
+
+.global gcd
+
+gcd:
+    cmp x1, 0                // Verifica si b (x1) es cero
+    beq end_gcd              // Si b es cero, termina y retorna a
+loop:
+    mov x2, x1               // Copia b en x2
+    udiv x1, x0, x1          // x1 = a % b (división entera, x1 contiene el residuo)
+    mov x0, x2               // Copia b en a (x0 = b)
+    cmp x1, 0                // Verifica si el residuo es cero
+    bne loop                 // Si el residuo no es cero, repite el bucle
+
+end_gcd:
+    ret                      // Retorna el MCD en x0
+```
