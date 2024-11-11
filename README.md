@@ -2796,75 +2796,694 @@ rotate_array:
 ## 36.-Encontrar el segundo elemento más grande
 
 ```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de encontrar el segundo elemento más grande de un arreglo en ARM64 Assembly
+// Entradas:
+//   x0 - Puntero al arreglo
+//   x1 - Tamaño del arreglo
+// Salida:
+//   x0 - Segundo elemento más grande en el arreglo
+
+// Algoritmo en C# (para referencia)
+// int SecondLargest(int[] arr) {
+//     int largest = int.MinValue;
+//     int secondLargest = int.MinValue;
+//     foreach (int num in arr) {
+//         if (num > largest) {
+//             secondLargest = largest;
+//             largest = num;
+//         } else if (num > secondLargest && num != largest) {
+//             secondLargest = num;
+//         }
+//     }
+//     return secondLargest;
+// }
+
+.global second_largest
+
+second_largest:
+    mov x2, 0                // Inicializa el valor más grande (largest) en 0
+    mov x3, 0                // Inicializa el segundo valor más grande (secondLargest) en 0
+    mov x4, 0                // Inicializa el índice en 0
+
+loop:
+    cmp x4, x1               // Compara el índice con el tamaño del arreglo
+    bge end_second_largest   // Si el índice es mayor o igual que el tamaño, termina
+
+    ldr w5, [x0, x4, LSL #2] // Carga el elemento arr[i] en w5
+
+    cmp w5, w2               // Compara arr[i] con el valor más grande (largest)
+    ble check_second         // Si arr[i] <= largest, salta a la verificación del segundo más grande
+
+    // Si arr[i] > largest, actualiza largest y secondLargest
+    mov x3, x2               // Segundo más grande = más grande actual
+    mov x2, w5               // Actualiza el más grande
+
+    b increment_index        // Salta a la siguiente iteración
+
+check_second:
+    cmp w5, x3               // Compara arr[i] con el segundo valor más grande
+    ble increment_index      // Si arr[i] <= secondLargest, continúa
+    mov x3, w5               // Actualiza el segundo más grande
+
+increment_index:
+    add x4, x4, 1            // Incrementa el índice
+    b loop                   // Repite el bucle
+
+end_second_largest:
+    mov x0, x3               // Retorna el segundo más grande en x0
+    ret                      // Finaliza la función
 
 ```
 ## 37.-Implementar una pila usando un arreglo
 
 ```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de una pila utilizando un arreglo en ARM64 Assembly
+// Entradas:
+//   x0 - Puntero al arreglo que representa la pila
+//   x1 - Tamaño máximo de la pila
+//   x2 - Operación a realizar (0 - push, 1 - pop)
+//   x3 - Valor a agregar (para push) o posición (para pop)
+// Salida:
+//   x0 - El valor extraído de la pila en caso de pop, o 0 en caso de éxito en push
+
+// Algoritmo en C# (para referencia)
+// class Stack {
+//     private int[] arr;
+//     private int top;
+//     public Stack(int size) {
+//         arr = new int[size];
+//         top = -1;
+//     }
+//     public void Push(int value) {
+//         if (top < arr.Length - 1) {
+//             arr[++top] = value;
+//         }
+//     }
+//     public int Pop() {
+//         if (top >= 0) {
+//             return arr[top--];
+//         }
+//         return -1;
+//     }
+// }
+
+.global stack_operation
+
+stack_operation:
+    cmp x2, 0                // Compara si la operación es push (0) o pop (1)
+    beq push_operation       // Si es push, salta a la operación push
+
+pop_operation:
+    cmp x3, -1               // Verifica si la pila está vacía (top = -1)
+    blt end_stack_operation  // Si la pila está vacía, termina la operación
+
+    ldr w4, [x0, x3, LSL #2] // Carga el valor de la pila en w4 (arr[top])
+    sub x3, x3, 1            // Decrementa el índice de la pila (top--)
+
+    mov x0, w4               // Retorna el valor extraído de la pila
+    b end_stack_operation    // Finaliza la operación
+
+push_operation:
+    cmp x3, x1               // Compara si el índice top es menor que el tamaño de la pila
+    bge end_stack_operation  // Si la pila está llena, termina la operación
+
+    add x3, x3, 1            // Incrementa el índice de la pila (top++)
+    str w4, [x0, x3, LSL #2] // Guarda el valor en la pila
+
+end_stack_operation:
+    ret                      // Finaliza la función
+
 
 ```
 ## 38.-Implementar una cola usando un arreglo
 
 ```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de una cola utilizando un arreglo en ARM64 Assembly
+// Entradas:
+//   x0 - Puntero al arreglo que representa la cola
+//   x1 - Tamaño máximo de la cola
+//   x2 - Operación a realizar (0 - encolar, 1 - desencolar)
+//   x3 - Valor a agregar (para encolar) o 0 para desencolar
+// Salida:
+//   x0 - El valor extraído de la cola en caso de desencolar, o 0 en caso de éxito al encolar
+
+// Algoritmo en C# (para referencia)
+// class Queue {
+//     private int[] arr;
+//     private int front;
+//     private int rear;
+//     public Queue(int size) {
+//         arr = new int[size];
+//         front = 0;
+//         rear = 0;
+//     }
+//     public void Enqueue(int value) {
+//         if ((rear + 1) % arr.Length != front) {  // Verifica si la cola no está llena
+//             arr[rear] = value;
+//             rear = (rear + 1) % arr.Length;
+//         }
+//     }
+//     public int Dequeue() {
+//         if (front != rear) {  // Verifica si la cola no está vacía
+//             int value = arr[front];
+//             front = (front + 1) % arr.Length;
+//             return value;
+//         }
+//         return -1;
+//     }
+// }
+
+.global queue_operation
+
+queue_operation:
+    cmp x2, 0                // Compara si la operación es encolar (0) o desencolar (1)
+    beq enqueue_operation    // Si es encolar, salta a la operación encolar
+
+dequeue_operation:
+    cmp x1, 0                // Verifica si la cola está vacía (front == rear)
+    beq end_queue_operation  // Si está vacía, termina la operación
+
+    ldr w4, [x0, x1, LSL #2] // Carga el valor de la cola en w4 (arr[front])
+    add x1, x1, 1            // Incrementa el índice de la cola (front++)
+    mod x1, x1, x3           // Aplica el módulo para que front no exceda el tamaño de la cola
+
+    mov x0, w4               // Retorna el valor extraído de la cola
+    b end_queue_operation    // Finaliza la operación
+
+enqueue_operation:
+    cmp x2, x3               // Verifica si la cola está llena (rear + 1 == front)
+    beq end_queue_operation  // Si está llena, termina la operación
+
+    str w4, [x0, x2, LSL #2] // Guarda el valor en la cola en la posición rear
+    add x2, x2, 1            // Incrementa el índice de la cola (rear++)
+    mod x2, x2, x3           // Aplica el módulo para que rear no exceda el tamaño de la cola
+
+end_queue_operation:
+    ret                      // Finaliza la función
 
 ```
 
 ## 39.-Convertir decimal a binario
 
 ```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de conversión de número decimal a binario en ARM64 Assembly
+// Entradas:
+//   x0 - Número decimal (entero)
+//   x1 - Puntero al arreglo para almacenar el resultado binario
+//   x2 - Tamaño máximo del arreglo para el binario
+// Salida:
+//   x1 - Puntero al arreglo con el número binario
+
+// Algoritmo en C# (para referencia)
+// string DecimalToBinary(int num) {
+//     string binary = "";
+//     while (num > 0) {
+//         binary = (num % 2) + binary;
+//         num /= 2;
+//     }
+//     return binary;
+// }
+
+.global decimal_to_binary
+
+decimal_to_binary:
+    mov x3, x0               // x3 = número decimal (num)
+    mov x4, x2               // x4 = tamaño máximo del arreglo
+    sub x4, x4, 1            // Decrementa para usarlo como índice (posición del arreglo)
+    mov x5, 0                // Inicializa el índice del arreglo
+
+loop:
+    cmp x3, 0                // Verifica si el número es 0
+    beq end_conversion       // Si es 0, termina la conversión
+
+    and x6, x3, 1            // Obtiene el bit menos significativo (num % 2)
+    str w6, [x1, x4, LSL #2] // Guarda el bit en el arreglo
+    lsr x3, x3, 1            // Desplaza el número a la derecha (num /= 2)
+    sub x4, x4, 1            // Decrementa el índice del arreglo
+    b loop                   // Repite el bucle
+
+end_conversion:
+    mov x0, x1               // Retorna el puntero al arreglo con el número binario
+    ret                      // Finaliza la función
 
 ```
 ## 40.-Convertir binario a decimal
 
 ```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de conversión de número binario a decimal en ARM64 Assembly
+// Entradas:
+//   x0 - Puntero al arreglo con el número binario
+//   x1 - Longitud del número binario (cantidad de bits)
+// Salida:
+//   x0 - Número decimal resultante de la conversión
+
+// Algoritmo en C# (para referencia)
+// int BinaryToDecimal(int[] bin) {
+//     int decimal = 0;
+//     for (int i = 0; i < bin.Length; i++) {
+//         decimal += bin[i] * (1 << (bin.Length - 1 - i));
+//     }
+//     return decimal;
+// }
+
+.global binary_to_decimal
+
+binary_to_decimal:
+    mov x2, 0                // Inicializa el valor decimal en 0
+    mov x3, x1               // x3 = longitud del arreglo binario
+    sub x3, x3, 1            // Ajusta la longitud para usarla como el índice más alto
+
+loop:
+    cmp x3, -1               // Verifica si hemos recorrido todo el arreglo
+    blt end_conversion       // Si ya recorrimos todos los bits, termina la conversión
+
+    ldr w4, [x0, x3, LSL #2] // Carga el bit en w4 (arr[x3])
+    cmp w4, 0                // Verifica si el bit es 1 o 0
+    beq skip_addition        // Si es 0, no hace nada
+
+    mov x5, 1                // Prepara el valor 1 para multiplicar por el bit correspondiente
+    lsl x5, x5, x3           // Desplaza 1 hacia la izquierda según la posición del bit (2^x3)
+    add x2, x2, x5           // Suma el valor al resultado decimal
+
+skip_addition:
+    sub x3, x3, 1            // Decrementa el índice
+    b loop                   // Repite el bucle
+
+end_conversion:
+    mov x0, x2               // Retorna el número decimal
+    ret                      // Finaliza la función
 
 ```
 ## 41.-Conversión de decimal a hexadecimal
 
 ```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de conversión de número decimal a hexadecimal en ARM64 Assembly
+// Entradas:
+//   x0 - Número decimal (entero)
+//   x1 - Puntero al arreglo para almacenar el resultado hexadecimal
+//   x2 - Tamaño máximo del arreglo para el hexadecimal
+// Salida:
+//   x1 - Puntero al arreglo con el número hexadecimal
+
+// Algoritmo en C# (para referencia)
+// string DecimalToHexadecimal(int num) {
+//     return num.ToString("X");
+// }
+
+.global decimal_to_hexadecimal
+
+decimal_to_hexadecimal:
+    mov x3, x0               // x3 = número decimal (num)
+    mov x4, x2               // x4 = tamaño máximo del arreglo
+    sub x4, x4, 1            // Decrementa para usarlo como índice (posición del arreglo)
+    mov x5, 0                // Inicializa el índice del arreglo
+
+loop:
+    cmp x3, 0                // Verifica si el número es 0
+    beq end_conversion       // Si es 0, termina la conversión
+
+    and x6, x3, 15           // Obtiene el valor hexadecimal de 4 bits (num & 0xF)
+    cmp x6, 10               // Verifica si el valor es mayor o igual que 10 (para letras A-F)
+    blt store_digit          // Si es menor que 10, es un número decimal
+    add x6, x6, 87           // Convierte 10-15 a 'a'-'f'
+
+store_digit:
+    strb w6, [x1, x4]        // Guarda el dígito hexadecimal en el arreglo
+    lsr x3, x3, 4            // Desplaza el número 4 bits a la derecha (num >>= 4)
+    sub x4, x4, 1            // Decrementa el índice del arreglo
+    b loop                   // Repite el bucle
+
+end_conversion:
+    mov x0, x1               // Retorna el puntero al arreglo con el número hexadecimal
+    ret                      // Finaliza la función
 
 ```
 ## 42.-Conversión de hexadecimal a decimal
 
 ```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de conversión de número hexadecimal a decimal en ARM64 Assembly
+// Entradas:
+//   x0 - Puntero al arreglo con el número hexadecimal (como caracteres ASCII)
+//   x1 - Longitud del número hexadecimal (cantidad de caracteres)
+// Salida:
+//   x0 - Número decimal resultante de la conversión
+
+// Algoritmo en C# (para referencia)
+// int HexadecimalToDecimal(string hex) {
+//     return Convert.ToInt32(hex, 16);
+// }
+
+.global hexadecimal_to_decimal
+
+hexadecimal_to_decimal:
+    mov x2, 0                // Inicializa el valor decimal en 0
+    mov x3, x1               // x3 = longitud del arreglo hexadecimal
+    sub x3, x3, 1            // Ajusta la longitud para usarla como el índice más alto
+
+loop:
+    cmp x3, -1               // Verifica si hemos recorrido todo el arreglo
+    blt end_conversion       // Si ya recorrimos todos los caracteres, termina la conversión
+
+    ldrb w4, [x0, x3]        // Carga el carácter hexadecimal en w4 (arr[x3])
+    cmp w4, '0'              // Verifica si el carácter es un número ('0'-'9')
+    blt hex_digit            // Si es menor que '0', es una letra (A-F)
+    cmp w4, '9'              // Verifica si el carácter está entre '0' y '9'
+    ble convert_to_digit     // Si está entre '0' y '9', conviértelo a un número
+
+hex_digit:
+    cmp w4, 'a'              // Verifica si el carácter es una letra entre 'a' y 'f'
+    blt invalid_char         // Si es menor que 'a', es un carácter no válido
+    cmp w4, 'f'              // Verifica si el carácter es entre 'a' y 'f'
+    ble convert_to_digit     // Si está entre 'a' y 'f', conviértelo a un número
+
+invalid_char:
+    mov x0, -1               // Devuelve -1 si hay un carácter inválido
+    ret
+
+convert_to_digit:
+    sub w4, w4, '0'          // Convierte el carácter a un número
+    cmp w4, 9                // Verifica si es un número entre 0-9
+    ble store_digit          // Si es un número, lo guarda
+    sub w4, w4, 32           // Convierte de letra a número (a=10, b=11, ..., f=15)
+
+store_digit:
+    mov x5, 1                // Prepara el valor de base 16
+    lsl x5, x5, x3           // Desplaza la base 16 según la posición del dígito
+    mul x4, x4, x5           // Multiplica el dígito por 16^posición
+    add x2, x2, x4           // Suma el valor al total decimal
+
+    sub x3, x3, 1            // Decrementa el índice
+    b loop                   // Repite el bucle
+
+end_conversion:
+    mov x0, x2               // Retorna el número decimal
+    ret                      // Finaliza la función
 
 ```
 ## 43.-Calculadora simple (Suma, Resta, Multiplicación, División)
 
 ```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de una calculadora simple (Suma, Resta, Multiplicación, División) en ARM64 Assembly
+// Entradas:
+//   x0 - Operando 1 (primer número)
+//   x1 - Operando 2 (segundo número)
+//   x2 - Operación (0 = Suma, 1 = Resta, 2 = Multiplicación, 3 = División)
+// Salida:
+//   x0 - Resultado de la operación
+
+// Algoritmo en C# (para referencia)
+// double Calculate(double num1, double num2, int operation) {
+//     switch (operation) {
+//         case 0: return num1 + num2; // Suma
+//         case 1: return num1 - num2; // Resta
+//         case 2: return num1 * num2; // Multiplicación
+//         case 3: return num1 / num2; // División
+//         default: throw new InvalidOperationException();
+//     }
+// }
+
+.global calculator
+
+calculator:
+    cmp x2, 0                // Compara operación con 0 (Suma)
+    beq add_operation        // Si es Suma, salta a la operación de suma
+    cmp x2, 1                // Compara operación con 1 (Resta)
+    beq subtract_operation   // Si es Resta, salta a la operación de resta
+    cmp x2, 2                // Compara operación con 2 (Multiplicación)
+    beq multiply_operation   // Si es Multiplicación, salta a la operación de multiplicación
+    cmp x2, 3                // Compara operación con 3 (División)
+    beq divide_operation     // Si es División, salta a la operación de división
+    b end_calculation        // Si la operación no es válida, termina
+
+add_operation:
+    add x0, x0, x1           // Suma los operandos (x0 = x0 + x1)
+    ret                       // Retorna el resultado
+
+subtract_operation:
+    sub x0, x0, x1           // Resta los operandos (x0 = x0 - x1)
+    ret                       // Retorna el resultado
+
+multiply_operation:
+    mul x0, x0, x1           // Multiplica los operandos (x0 = x0 * x1)
+    ret                       // Retorna el resultado
+
+divide_operation:
+    cbz x1, divide_by_zero   // Verifica si el divisor (x1) es 0
+    sdiv x0, x0, x1          // Divide los operandos (x0 = x0 / x1)
+    ret                       // Retorna el resultado
+
+divide_by_zero:
+    mov x0, -1               // Si la división es por 0, retorna -1
+    ret                       // Finaliza la función
+
+end_calculation:
+    mov x0, -1               // Si la operación no es válida, retorna -1
+    ret                       // Finaliza la función
+
 
 ```
 ## 44.-	Generación de números aleatorios (con semilla)
 
 ```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de generación de números aleatorios (con semilla) en ARM64 Assembly
+// Entradas:
+//   x0 - Semilla (valor inicial para la generación)
+//   x1 - Rango (valor máximo en el rango de números aleatorios)
+// Salida:
+//   x0 - Número aleatorio generado en el rango [0, x1)
+
+.global random_number_generator
+
+random_number_generator:
+    mov x2, x0               // Copia la semilla a x2 (valor inicial)
+    mov x3, 0x41C64E6D       // Constante multiplicativa (Valor de la multiplicación para el generador lineal congruencial)
+    mov x4, 0x3039           // Constante de adición (Valor de la adición para el generador lineal congruencial)
+    mov x5, x1               // Copia el rango máximo a x5
+
+    mul x2, x2, x3           // Multiplica la semilla por la constante multiplicativa
+    add x2, x2, x4           // Suma la constante de adición
+    and x2, x2, 0x7FFFFFFF   // Aplica una máscara para asegurar que el número esté en el rango de 32 bits (para evitar desbordamientos)
+
+    sdiv x0, x2, x5          // Divide el número generado por el rango para obtener un valor entre 0 y x1
+    ret                      // Retorna el número aleatorio generado
 
 ```
 ## 45.-Verificar si un número es Armstrong
 
 ```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Verificación si un número es Armstrong en ARM64 Assembly
+// Entradas:
+//   x0 - Número a verificar
+// Salida:
+//   x0 - 1 si es un número Armstrong, 0 si no lo es
+
+// Algoritmo en C# (para referencia)
+// bool IsArmstrong(int number) {
+//     int sum = 0;
+//     int temp = number;
+//     int digits = (int)Math.Log10(number) + 1; // Número de dígitos
+//     while (temp > 0) {
+//         int digit = temp % 10;
+//         sum += (int)Math.Pow(digit, digits);
+//         temp /= 10;
+//     }
+//     return sum == number;
+// }
+
+.global is_armstrong
+
+is_armstrong:
+    mov x1, x0              // Copia el número a x1 (para calcular el número de dígitos)
+    mov x2, 0               // Inicializa la variable de la suma a 0
+    mov x3, 0               // Inicializa la variable de la potencia de los dígitos a 0
+    mov x4, 0               // Inicializa el contador de dígitos a 0
+
+count_digits:
+    cmp x1, 0               // Verifica si el número es 0
+    beq calculate_sum       // Si es 0, salta a calcular la suma de los dígitos
+    add x4, x4, 1           // Incrementa el contador de dígitos
+    udiv x1, x1, 10         // Divide el número por 10 para obtener el siguiente dígito
+    b count_digits          // Repite el ciclo
+
+calculate_sum:
+    mov x1, x0              // Recupera el número original en x1
+    mov x5, x4              // Copia el número de dígitos a x5
+
+calculate_digit_sum:
+    cmp x1, 0               // Verifica si el número es 0
+    beq check_result        // Si es 0, salta a verificar si la suma es igual al número
+    udiv x6, x1, 10         // Obtiene el dígito actual (división entre 10)
+    mul x6, x6, x6          // Eleva el dígito al cuadrado (o potencia correspondiente)
+    add x2, x2, x6          // Suma el resultado al acumulador
+    b calculate_digit_sum   // Repite para los otros dígitos
+
+check_result:
+    cmp x0, x2              // Compara la suma de las potencias con el número original
+    beq armstrong_number     // Si son iguales, es un número Armstrong
+    mov x0, 0               // Si no es Armstrong, devuelve 0
+    ret
+
+armstrong_number:
+    mov x0, 1               // Si es Armstrong, devuelve 1
+    ret
 
 ```
 ## 46.-Encontrar prefijo común más largo en cadenas
 
 ```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación para encontrar el prefijo común más largo entre dos cadenas en ARM64 Assembly
+// Entradas:
+//   x0 - Puntero a la primera cadena
+//   x1 - Puntero a la segunda cadena
+// Salida:
+//   x0 - Longitud del prefijo común más largo
+
+.global longest_common_prefix
+
+longest_common_prefix:
+    mov x2, 0               // Inicializa el contador de longitud del prefijo común
+compare_chars:
+    ldrb w3, [x0, x2]       // Carga el siguiente carácter de la primera cadena en w3
+    ldrb w4, [x1, x2]       // Carga el siguiente carácter de la segunda cadena en w4
+    cmp w3, w4              // Compara los caracteres
+    bne end_compare         // Si son diferentes, salta a fin de comparación
+    cmp w3, #0              // Verifica si es el fin de la cadena (carácter nulo)
+    beq end_compare         // Si es el fin de la cadena, termina la comparación
+    add x2, x2, 1           // Incrementa el contador de longitud del prefijo común
+    b compare_chars         // Repite la comparación para el siguiente par de caracteres
+
+end_compare:
+    mov x0, x2              // Devuelve la longitud del prefijo común
+    ret                      // Retorna el resultado
 
 ```
 ## 47.-Detección de desbordamiento en suma
 
 ```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación para detectar desbordamiento en la suma de dos números enteros en ARM64 Assembly
+// Entradas:
+//   x0 - Primer número
+//   x1 - Segundo número
+// Salida:
+//   x0 - 1 si hay desbordamiento, 0 si no lo hay
+
+.global detect_overflow
+
+detect_overflow:
+    add x2, x0, x1          // Suma los dos números y almacena el resultado en x2
+    cmp x0, x2              // Compara el primer número con el resultado
+    ccs x0, #1              // Si hay un carry (desbordamiento), x0 = 1
+    moveq x0, #0            // Si no hay desbordamiento, x0 = 0
+    ret                     // Retorna el resultado
 
 ```
 ## 48.-Medir el tiempo de ejecución de una función
 
 ```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación para medir el tiempo de ejecución de una función en ARM64 Assembly
+// Entradas:
+//   Ninguna
+// Salida:
+//   x0 - El tiempo de ejecución en nanosegundos
+
+.global measure_execution_time
+
+measure_execution_time:
+    // Guardar el valor actual del contador de tiempo
+    mrs x1, cntvct              // Carga el valor actual del contador de tiempo en x1
+
+    // Llamada a la función cuyo tiempo de ejecución vamos a medir
+    bl target_function          // Llama a la función objetivo que se desea medir
+
+    // Calcular el tiempo transcurrido
+    mrs x2, cntvct              // Carga el valor actual del contador de tiempo después de la ejecución
+    subs x0, x2, x1             // Calcula la diferencia entre el tiempo de finalización y el tiempo de inicio
+
+    ret                         // Retorna el tiempo de ejecución en x0 (en ciclos de reloj)
+    
+// Esta función es un ejemplo y debería ser reemplazada por la función real cuya duración se desea medir
+target_function:
+    // Lógica de la función que se desea medir
+    // Este código puede ser reemplazado por cualquier función real
+    mov x3, #0
+    add x3, x3, #1
+    ret
 
 ```
 ## 49.-Leer entrada desde el teclado
 
 ```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación para leer entrada desde el teclado en ARM64 Assembly
+// Entradas:
+//   Ninguna
+// Salida:
+//   x0 - Valor leído desde el teclado (como entero)
+
+.global read_input
+
+read_input:
+    // Preparar la llamada al sistema para leer entrada desde el teclado
+    mov x8, #63               // Número de la llamada al sistema para leer entrada (sys_read)
+    mov x0, #0                // Descriptor de archivo 0 (stdin)
+    mov x1, sp                // Dirección en la pila donde se almacenará la entrada
+    mov x2, #4                // Número de bytes a leer (por ejemplo, leer un entero de 4 bytes)
+    svc #0                    // Realiza la llamada al sistema
+
+    // Convertir la entrada leída en la pila a un entero
+    ldr w0, [sp]              // Carga el valor leído en w0
+
+    ret                       // Retorna el valor leído desde el teclado en x0
 
 ```
 ## 50.-Escribir en un archivo
 
 ```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación para escribir en un archivo en ARM64 Assembly
+// Entradas:
+//   x0 - Puntero al buffer que contiene los datos a escribir
+//   x1 - Tamaño de los datos a escribir (en bytes)
+// Salida:
+//   Ninguna (escribe los datos en el archivo)
+
+.global write_to_file
+
+write_to_file:
+    // Preparar la llamada al sistema para escribir en un archivo
+    mov x8, #64               // Número de la llamada al sistema para escribir (sys_write)
+    mov x2, #1                // Descriptor de archivo 1 (stdout), cambiar por el descriptor de archivo del archivo objetivo
+    mov x1, x0                // Dirección del buffer de datos a escribir
+    svc #0                    // Realiza la llamada al sistema para escribir en el archivo
+
+    ret                       // Retorna después de escribir en el archivo
+
 ```
