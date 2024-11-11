@@ -833,7 +833,7 @@ Introduce un número: 5
 El factorial es: 120
 
 
-## Serie de Fibonacci
+## 8.- Serie de Fibonacci
 #### C# - Fibonacci.cs 
 ```
 /*
@@ -977,7 +977,7 @@ Serie de Fibonacci: 0
 5
 8
 
-## Verificar si un número es primo
+## 9.- Verificar si un número es primo
 ### C# - Primo.cs
 ```
 /*
@@ -1118,7 +1118,7 @@ exit:
 Introduce un número: 17
 17 es un número primo.
 
-## Invertir una cadena
+## 10.-Invertir una cadena
 ### C# - InvertirCadena.cs
 
 ```
@@ -1246,7 +1246,7 @@ Introduce una cadena de texto: Hola Mundo
 La cadena invertida es: odnuM aloH
 
 
-## Verificar si una cadena es palíndromo
+## 11.- Verificar si una cadena es palíndromo
 ### C# - Palindromo.cs
 
 ```
@@ -1387,7 +1387,7 @@ exit:
 Introduce una cadena de texto: reconocer
 La cadena 'reconocer' es un palíndromo.
 
-## Encontrar el máximo en un arreglo
+## 12.-Encontrar el máximo en un arreglo
 ### C# - MaxEnArreglo.cs
 
 ```
@@ -1536,7 +1536,7 @@ continue_find:
 Introduce los elementos del arreglo separados por espacio: 5 8 2 12 3 7
 El valor máximo en el arreglo es: 12
 
-## Encontrar el mínimo en un arreglo
+## 13.-Encontrar el mínimo en un arreglo
 ### C# - MinEnArreglo.cs
 
 ```
@@ -1680,4 +1680,515 @@ continue_find:
 ### Corrida
 Introduce los elementos del arreglo separados por espacio: 5 8 2 12 3 7
 El valor mínimo en el arreglo es: 2
+
+# 14.-búsqueda lineal 
+
+### Codigo en C#
+```
+/*
+Autor: Sánchez Salinas Eduardo Josué
+Descripción: Implementación de búsqueda lineal en ARM64 Assembly
+Objetivo: Buscar un valor en un arreglo y devolver su índice. Si no se encuentra, devolver -1.
+*/
+
+// Código en C equivalente:
+/*
+int linear_search(int *arr, int length, int target) {
+    for (int i = 0; i < length; i++) {
+        if (arr[i] == target) {
+            return i;  // índice del elemento encontrado
+        }
+    }
+    return -1; // no encontrado
+}
+*/
+```
+
+### asamblador
+```
+.section .data
+arr:    .word 5, 10, 15, 20, 25  // Arreglo de ejemplo
+length: .word 5                  // Longitud del arreglo
+target: .word 20                 // Valor a buscar
+
+.section .text
+.global _start
+
+_start:
+    LDR x0, =arr        // Cargar la dirección del arreglo en x0
+    LDR w1, =length     // Cargar la longitud del arreglo en w1
+    LDR w2, =target     // Cargar el valor objetivo a buscar en w2
+
+    // Llamada a la función de búsqueda
+    BL linear_search
+
+    // Salir del programa
+    MOV w8, 93         // syscall para terminar (exit) en Linux ARM64
+    SVC #0             // Llamada al sistema
+
+// Función linear_search
+// Parámetros:
+// - x0: puntero al inicio del arreglo
+// - w1: longitud del arreglo
+// - w2: valor objetivo
+// Resultado:
+// - w0: índice del elemento encontrado, o -1 si no se encuentra
+linear_search:
+    MOV w3, #0         // Inicializar índice i = 0
+
+loop:
+    CMP w3, w1         // Comparar i con la longitud
+    B.GE not_found     // Si i >= longitud, el objetivo no está en el arreglo
+
+    LDR w4, [x0, w3, LSL #2] // Cargar arr[i] (cada elemento es de 4 bytes)
+    CMP w4, w2         // Comparar arr[i] con el objetivo
+    B.EQ found         // Si son iguales, se encontró el objetivo
+
+    ADD w3, w3, #1     // Incrementar i
+    B loop             // Volver al inicio del loop
+
+not_found:
+    MOV w0, #-1        // Si no se encuentra, retornar -1
+    RET
+
+found:
+    MOV w0, w3         // Retornar el índice encontrado
+    RET
+
+```
+
+## 15.- Búsqueda binaria
+
+### C#
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de búsqueda binaria recursiva en ARM64 Assembly
+// Entradas: 
+//   x0 - Puntero al inicio del arreglo ordenado
+//   x1 - Límite inferior (left)
+//   x2 - Límite superior (right)
+//   x3 - Valor objetivo (target)
+// Salida:
+//   x0 - Índice del valor objetivo en el arreglo, o -1 si no se encuentra
+
+int BinarySearch(int[] arr, int left, int right, int target) {
+    if (left > right) return -1; // Caso base: valor no encontrado
+    int mid = left + (right - left) / 2;
+
+    if (arr[mid] == target) return mid; // Valor encontrado
+    else if (arr[mid] > target)         // Buscar en mitad izquierda
+        return BinarySearch(arr, left, mid - 1, target);
+    else                                // Buscar en mitad derecha
+        return BinarySearch(arr, mid + 1, right, target);
+}
+```
+### Asamblador
+
+```
+.global binary_search
+
+binary_search:
+    cmp x1, x2              // Compara left y right
+    bgt not_found           // Si left > right, no encontrado
+    
+    add x4, x1, x2          // x4 = left + right
+    lsr x4, x4, 1           // x4 = mid = (left + right) / 2
+
+    ldr w5, [x0, x4, LSL #2]  // w5 = arr[mid]
+    cmp w5, w3                // Compara arr[mid] con target
+    beq found                 // Si arr[mid] == target, encontrado
+
+    cmp w5, w3
+    bgt search_left           // Si arr[mid] > target, mitad izquierda
+
+    add x1, x4, 1            // left = mid + 1
+    b binary_search          // Llama recursivamente
+
+search_left:
+    sub x2, x4, 1            // right = mid - 1
+    b binary_search          // Llama recursivamente
+
+found:
+    mov x0, x4               // x0 = mid
+    ret                      // Retorna índice encontrado
+
+not_found:
+    mov x0, -1               // Retorna -1 si no se encuentra
+    ret
+
+```
+
+## 16.-Ordenamiento burbuja
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de ordenamiento burbuja en ARM64 Assembly
+// Entradas: 
+//   x0 - Puntero al arreglo a ordenar
+//   x1 - Tamaño del arreglo
+// Salida:
+//   Arreglo ordenado en orden ascendente en la misma posición de memoria
+
+// Algoritmo en C# (para referencia)
+// void BubbleSort(int[] arr) {
+//     int n = arr.Length;
+//     for (int i = 0; i < n - 1; i++) {
+//         for (int j = 0; j < n - i - 1; j++) {
+//             if (arr[j] > arr[j + 1]) {
+//                 int temp = arr[j];
+//                 arr[j] = arr[j + 1];
+//                 arr[j + 1] = temp;
+//             }
+//         }
+//     }
+// }
+
+.global bubble_sort
+
+bubble_sort:
+    sub x2, x1, 1            // x2 = n - 1, establece el límite exterior del bucle
+outer_loop:
+    cmp x2, 0                // Verifica si el límite exterior es 0
+    ble end_sort             // Termina si x2 <= 0
+
+    mov x3, 0                // Inicializa el índice interior (j = 0)
+inner_loop:
+    sub x4, x2, x3           // x4 = n - i - 1, límite interno decreciente
+    cmp x4, 1                // Verifica si hay al menos dos elementos para comparar
+    ble next_pass            // Salta a la siguiente pasada si no hay suficientes elementos
+
+    ldr w5, [x0, x3, LSL #2]    // Carga arr[j] en w5
+    ldr w6, [x0, x3, LSL #2 + 4] // Carga arr[j + 1] en w6
+    cmp w5, w6                // Compara arr[j] con arr[j + 1]
+    ble skip_swap             // Si arr[j] <= arr[j + 1], no hace intercambio
+
+    // Intercambio de arr[j] y arr[j + 1]
+    str w6, [x0, x3, LSL #2]     // Guarda arr[j + 1] en arr[j]
+    str w5, [x0, x3, LSL #2 + 4] // Guarda arr[j] en arr[j + 1]
+
+skip_swap:
+    add x3, x3, 1            // Incrementa j
+    b inner_loop             // Repite el bucle interno
+
+next_pass:
+    sub x2, x2, 1            // Decrementa el límite exterior (i++)
+    b outer_loop             // Repite el bucle exterior
+
+end_sort:
+    ret                      // Termina el ordenamiento
+```
+
+## 17.- Ordenamiento por selección
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de ordenamiento por selección en ARM64 Assembly
+// Entradas:
+//   x0 - Puntero al arreglo a ordenar
+//   x1 - Tamaño del arreglo
+// Salida:
+//   Arreglo ordenado en orden ascendente en la misma posición de memoria
+
+// Algoritmo en C# (para referencia)
+// void SelectionSort(int[] arr) {
+//     int n = arr.Length;
+//     for (int i = 0; i < n - 1; i++) {
+//         int minIndex = i;
+//         for (int j = i + 1; j < n; j++) {
+//             if (arr[j] < arr[minIndex]) {
+//                 minIndex = j;
+//             }
+//         }
+//         if (minIndex != i) {
+//             int temp = arr[i];
+//             arr[i] = arr[minIndex];
+//             arr[minIndex] = temp;
+//         }
+//     }
+// }
+
+.global selection_sort
+
+selection_sort:
+    mov x2, 0                // Inicializa el índice de iteración exterior (i = 0)
+outer_loop:
+    cmp x2, x1                // Compara i con n
+    bge end_sort              // Si i >= n, termina
+
+    mov x3, x2                // x3 = i, el índice mínimo comienza como i
+    add x4, x2, 1             // x4 = i + 1, comienza la iteración interna desde el siguiente elemento
+inner_loop:
+    cmp x4, x1                // Verifica si x4 >= n
+    bge next_outer_iteration  // Si x4 >= n, termina la iteración interna
+
+    ldr w5, [x0, x4, LSL #2]  // Carga arr[j] en w5
+    ldr w6, [x0, x3, LSL #2]  // Carga arr[minIndex] en w6
+    cmp w5, w6                // Compara arr[j] con arr[minIndex]
+    bge skip_swap             // Si arr[j] >= arr[minIndex], no hay intercambio
+
+    mov x3, x4                // Actualiza minIndex con j
+
+skip_swap:
+    add x4, x4, 1             // Incrementa el índice interno (j++)
+    b inner_loop              // Repite el bucle interno
+
+next_outer_iteration:
+    cmp x3, x2                // Si minIndex no es igual a i, realiza el intercambio
+    beq continue_outer_loop   // Si no hay intercambio, pasa a la siguiente iteración
+
+    // Intercambio de arr[i] y arr[minIndex]
+    ldr w7, [x0, x2, LSL #2]  // Carga arr[i] en w7
+    ldr w8, [x0, x3, LSL #2]  // Carga arr[minIndex] en w8
+    str w8, [x0, x2, LSL #2]  // Guarda arr[minIndex] en arr[i]
+    str w7, [x0, x3, LSL #2]  // Guarda arr[i] en arr[minIndex]
+
+continue_outer_loop:
+    add x2, x2, 1             // Incrementa el índice exterior (i++)
+    b outer_loop              // Repite el bucle exterior
+
+end_sort:
+    ret                       // Termina el ordenamiento
+```
+
+## 18.-Ordenamiento por mezcla (Merge Sort)
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de ordenamiento por mezcla (Merge Sort) en ARM64 Assembly
+// Entradas:
+//   x0 - Puntero al arreglo a ordenar
+//   x1 - Tamaño del arreglo
+// Salida:
+//   Arreglo ordenado en orden ascendente en la misma posición de memoria
+
+// Algoritmo en C# (para referencia)
+// void MergeSort(int[] arr) {
+//     if (arr.Length <= 1) return;
+//     int mid = arr.Length / 2;
+//     int[] left = arr.Take(mid).ToArray();
+//     int[] right = arr.Skip(mid).ToArray();
+//     MergeSort(left);
+//     MergeSort(right);
+//     Merge(arr, left, right);
+// }
+//
+// void Merge(int[] arr, int[] left, int[] right) {
+//     int i = 0, j = 0, k = 0;
+//     while (i < left.Length && j < right.Length) {
+//         if (left[i] < right[j]) {
+//             arr[k++] = left[i++];
+//         } else {
+//             arr[k++] = right[j++];
+//         }
+//     }
+//     while (i < left.Length) {
+//         arr[k++] = left[i++];
+//     }
+//     while (j < right.Length) {
+//         arr[k++] = right[j++];
+//     }
+// }
+
+.global merge_sort
+.global merge
+
+// Función principal de MergeSort
+merge_sort:
+    cmp x1, 1                // Si el tamaño del arreglo es 1, ya está ordenado
+    ble end_sort             // Si n <= 1, termina
+
+    // Divide el arreglo en dos mitades
+    mov x2, x1
+    asr x2, x2, 1            // x2 = n / 2, tamaño de la mitad izquierda
+    sub x3, x1, x2           // x3 = n - n/2, tamaño de la mitad derecha
+
+    // Llamada recursiva a la mitad izquierda
+    sub sp, sp, #16           // Reservamos espacio en el stack para el puntero y tamaño de la izquierda
+    str x0, [sp]              // Guardamos el puntero original
+    str x2, [sp, #8]          // Guardamos el tamaño de la mitad izquierda
+    bl merge_sort             // Llamada recursiva para ordenar la mitad izquierda
+    ldr x0, [sp]              // Recuperamos el puntero original
+    ldr x2, [sp, #8]          // Recuperamos el tamaño de la mitad izquierda
+    add sp, sp, #16           // Liberamos el espacio en el stack
+
+    // Llamada recursiva a la mitad derecha
+    sub sp, sp, #16           // Reservamos espacio en el stack para el puntero y tamaño de la derecha
+    add x0, x0, x2            // Apuntamos al inicio de la mitad derecha
+    str x0, [sp]              // Guardamos el puntero original
+    str x3, [sp, #8]          // Guardamos el tamaño de la mitad derecha
+    bl merge_sort             // Llamada recursiva para ordenar la mitad derecha
+    ldr x0, [sp]              // Recuperamos el puntero original
+    ldr x3, [sp, #8]          // Recuperamos el tamaño de la mitad derecha
+    add sp, sp, #16           // Liberamos el espacio en el stack
+
+    // Llamada a la función de mezcla (merge)
+    bl merge                  // Fusiona las dos mitades ordenadas
+
+end_sort:
+    ret
+
+// Función de mezcla (merge)
+merge:
+    // El puntero a los dos subarreglos y el arreglo original están en x0 y x1
+    // Los tamaños de los subarreglos están en x2 y x3
+    // La mezcla se realizará en el arreglo original
+    // Aquí se realiza la fusión entre los subarreglos ordenados
+
+    // TODO: Implementar el proceso de fusión de los dos subarreglos
+    ret
+```
+
+## 19.-Suma de matrices
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de suma de matrices en ARM64 Assembly
+// Entradas:
+//   x0 - Puntero a la primera matriz (A)
+//   x1 - Puntero a la segunda matriz (B)
+//   x2 - Puntero a la matriz resultante (C)
+//   x3 - Número de filas (M)
+//   x4 - Número de columnas (N)
+// Salida:
+//   La matriz C contendrá la suma de las matrices A y B
+
+// Algoritmo en C# (para referencia)
+// void MatrixSum(int[,] A, int[,] B, int[,] C) {
+//     int rows = A.GetLength(0);
+//     int cols = A.GetLength(1);
+//     for (int i = 0; i < rows; i++) {
+//         for (int j = 0; j < cols; j++) {
+//             C[i, j] = A[i, j] + B[i, j];
+//         }
+//     }
+// }
+
+.global matrix_sum
+
+matrix_sum:
+    mov x5, 0                // Inicializa el índice de filas (i = 0)
+row_loop:
+    cmp x5, x3                // Compara i con el número de filas
+    bge end_sum               // Si i >= filas, termina
+
+    mov x6, 0                // Inicializa el índice de columnas (j = 0)
+col_loop:
+    cmp x6, x4                // Compara j con el número de columnas
+    bge next_row              // Si j >= columnas, pasa a la siguiente fila
+
+    // Calcula el índice del elemento en la matriz (i, j)
+    mul x7, x5, x4            // x7 = i * N (filas * columnas)
+    add x7, x7, x6            // x7 = i * N + j (índice del elemento (i, j))
+
+    // Carga A[i, j] y B[i, j]
+    ldr w8, [x0, x7, LSL #2]  // Carga A[i, j] en w8
+    ldr w9, [x1, x7, LSL #2]  // Carga B[i, j] en w9
+
+    // Realiza la suma
+    add w10, w8, w9           // w10 = A[i, j] + B[i, j]
+
+    // Guarda el resultado en C[i, j]
+    str w10, [x2, x7, LSL #2] // Guarda C[i, j] = A[i, j] + B[i, j]
+
+    add x6, x6, 1             // Incrementa el índice de columnas (j++)
+    b col_loop                // Repite el bucle de columnas
+
+next_row:
+    add x5, x5, 1             // Incrementa el índice de filas (i++)
+    b row_loop                // Repite el bucle de filas
+
+end_sum:
+    ret                       // Termina la suma de matrices
+```
+
+## 20 Multiplicación de matrices
+
+```
+// Autor: Sanchez Salinas Eduardo Josue
+// Fecha: Fecha Actual
+// Descripción: Implementación de multiplicación de matrices en ARM64 Assembly
+// Entradas:
+//   x0 - Puntero a la primera matriz (A)
+//   x1 - Puntero a la segunda matriz (B)
+//   x2 - Puntero a la matriz resultante (C)
+//   x3 - Número de filas de la matriz A (M)
+//   x4 - Número de columnas de la matriz A y filas de la matriz B (N)
+//   x5 - Número de columnas de la matriz B (P)
+// Salida:
+//   La matriz C contendrá el resultado de la multiplicación de A y B
+
+// Algoritmo en C# (para referencia)
+// void MatrixMultiply(int[,] A, int[,] B, int[,] C) {
+//     int rowsA = A.GetLength(0);
+//     int colsA = A.GetLength(1);
+//     int colsB = B.GetLength(1);
+//     for (int i = 0; i < rowsA; i++) {
+//         for (int j = 0; j < colsB; j++) {
+//             C[i, j] = 0;
+//             for (int k = 0; k < colsA; k++) {
+//                 C[i, j] += A[i, k] * B[k, j];
+//             }
+//         }
+//     }
+// }
+
+.global matrix_multiply
+
+matrix_multiply:
+    mov x6, 0                // Inicializa el índice de filas de la matriz A (i = 0)
+row_loop:
+    cmp x6, x3                // Compara i con el número de filas de A
+    bge end_multiply          // Si i >= filasA, termina
+
+    mov x7, 0                // Inicializa el índice de columnas de la matriz B (j = 0)
+col_loop:
+    cmp x7, x5                // Compara j con el número de columnas de B
+    bge next_row              // Si j >= columnasB, pasa a la siguiente fila
+
+    mov x8, 0                 // Inicializa el índice para la suma (k = 0) y el acumulador (sum = 0)
+    mov w9, 0                 // Acumulador de la suma (C[i, j])
+
+inner_loop:
+    cmp x8, x4                // Compara k con N (columnasA / filasB)
+    bge store_result          // Si k >= N, almacena el resultado
+
+    // Calcula el índice del elemento (i, k) en A y (k, j) en B
+    mul x10, x6, x4           // x10 = i * N (índice de la fila de A)
+    add x10, x10, x8          // x10 = i * N + k (índice de A[i, k])
+
+    mul x11, x8, x5           // x11 = k * P (índice de la columna de B)
+    add x11, x11, x7          // x11 = k * P + j (índice de B[k, j])
+
+    ldr w12, [x0, x10, LSL #2] // Carga A[i, k] en w12
+    ldr w13, [x1, x11, LSL #2] // Carga B[k, j] en w13
+
+    mul w14, w12, w13         // w14 = A[i, k] * B[k, j]
+    add w9, w9, w14           // sum += A[i, k] * B[k, j]
+
+    add x8, x8, 1             // Incrementa el índice de la suma (k++)
+    b inner_loop              // Repite el bucle de la multiplicación de elementos
+
+store_result:
+    // Guarda el resultado en C[i, j]
+    mul x15, x6, x5           // x15 = i * P (índice de la fila de C)
+    add x15, x15, x7          // x15 = i * P + j (índice de C[i, j])
+    str w9, [x2, x15, LSL #2] // Guarda C[i, j] en la matriz C
+
+    add x7, x7, 1             // Incrementa el índice de columnas (j++)
+    b col_loop                // Repite el bucle de columnas
+
+next_row:
+    add x6, x6, 1             // Incrementa el índice de filas (i++)
+    b row_loop                // Repite el bucle de filas
+
+end_multiply:
+    ret                       // Termina la multiplicación de matrices
+```
+
 
