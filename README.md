@@ -580,14 +580,14 @@ section .data
     newline db 10, 0
 
 section .bss
-    N resb 10
-    suma resd 1
+    N resb 10          ; Buffer para almacenar la entrada del usuario
+    suma resd 1        ; Espacio para almacenar la suma
 
 section .text
     global _start
 
 _start:
-    ; Imprimir el mensaje para introducir N
+    ; Mostrar el mensaje para introducir N
     mov eax, 4          ; syscall para write
     mov ebx, 1          ; descriptor de salida (stdout)
     mov ecx, msg_input  ; puntero al mensaje
@@ -601,45 +601,78 @@ _start:
     mov edx, 10         ; tamaño máximo de caracteres a leer
     int 0x80            ; interrupción del sistema
 
-    ; Convertir la cadena de caracteres a número (simplificado)
-    ; Este paso se simplifica a la conversión directa del número, pero se podría usar un algoritmo para convertir texto a entero
+    ; Convertir la entrada de cadena a número
+    lea esi, [N]        ; Cargar la dirección de N en esi
+    xor eax, eax        ; Reiniciar eax (acumulador)
+    xor ebx, ebx        ; Reiniciar ebx (factor de multiplicación)
+convert_input:
+    mov bl, byte [esi]  ; Leer un carácter de la cadena
+    cmp bl, 10          ; Comprobar si es el final de línea (Enter)
+    je end_convert      ; Si es Enter, terminar la conversión
+    sub bl, '0'         ; Convertir el carácter ASCII a número
+    imul eax, eax, 10   ; Desplazar el número actual a la izquierda (base 10)
+    add eax, ebx        ; Agregar el dígito convertido
+    inc esi             ; Mover al siguiente carácter
+    jmp convert_input
+end_convert:
+    mov [N], eax        ; Guardar el número convertido en N
 
     ; Inicializar la suma en 0
-    mov eax, 0          ; reiniciar eax (suma)
-    mov [suma], eax     ; almacenar la suma
-
-    ; Obtener el valor de N
-    mov eax, [N]        ; cargar N en eax
-    sub eax, '0'        ; convertir de ASCII a número
+    xor eax, eax        ; Reiniciar eax (suma)
+    mov [suma], eax     ; Almacenar la suma inicial
 
     ; Sumar los primeros N números naturales
-    mov ecx, 1          ; inicializar contador i en 1
+    mov ecx, 1          ; Inicializar el contador i en 1
 sumar:
-    add [suma], ecx     ; sumar i a la suma
-    inc ecx             ; incrementar i
-    cmp ecx, eax        ; comparar i con N
-    jle sumar           ; si i <= N, continuar el bucle
+    add [suma], ecx     ; Sumar i a la suma
+    inc ecx             ; Incrementar i
+    cmp ecx, [N]        ; Comparar i con N
+    jle sumar           ; Si i <= N, continuar el bucle
 
-    ; Mostrar el mensaje de salida
+    ; Preparar el mensaje de salida
     mov eax, 4          ; syscall para write
     mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_output ; puntero al mensaje
-    mov edx, 15         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
+    mov ecx, msg_output ; Puntero al mensaje
+    mov edx, 15         ; Longitud del mensaje
+    int 0x80            ; Interrupción del sistema
 
-    ; Aquí agregar el código para mostrar el valor de la suma
-    ; Convertir el número de la suma a texto y mostrarlo
+    ; Mostrar la suma (convertir número a cadena)
+    mov eax, [suma]     ; Cargar la suma en eax
+    call print_number   ; Llamar a la rutina para mostrar el número
 
     ; Salir del programa
     mov eax, 1          ; syscall para exit
-    xor ebx, ebx        ; código de salida 0
-    int 0x80            ; interrupción del sistema
+    xor ebx, ebx        ; Código de salida 0
+    int 0x80            ; Interrupción del sistema
+
+; Rutina para convertir un número a cadena y mostrarlo
+print_number:
+    mov ecx, 10         ; Base 10
+    xor edx, edx        ; Reiniciar edx (remainder)
+    lea esi, [newline]  ; Apuntar al buffer temporal
+next_digit:
+    xor edx, edx        ; Reiniciar el resto
+    div ecx             ; Dividir eax entre 10, cociente en eax, resto en edx
+    add dl, '0'         ; Convertir el dígito a ASCII
+    dec esi             ; Retroceder el buffer
+    mov [esi], dl       ; Almacenar el dígito en el buffer
+    test eax, eax       ; Comprobar si quedan más dígitos
+    jnz next_digit      ; Si eax != 0, continuar
+
+    ; Mostrar la cadena resultante
+    mov eax, 4          ; syscall para write
+    mov ebx, 1          ; Descriptor de salida (stdout)
+    mov ecx, esi        ; Apuntar al primer carácter del número
+    lea edx, [newline]  ; Calcular la longitud
+    sub edx, esi        ; Restar para obtener el tamaño del número
+    int 0x80            ; Interrupción del sistema
+    ret
+
 
 ```
 ### Corrida
 
-Introduce el valor de N: 5
-La suma es: 15
+ [![asciicast](https://asciinema.org/a/RKN1yFBodLg6uFYlei4DUT5rg.svg)](https://asciinema.org/a/RKN1yFBodLg6uFYlei4DUT5rg)
 
 ## 7.-Factorial de un número
 ### C# - Factorial.cs
