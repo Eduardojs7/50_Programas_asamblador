@@ -49,72 +49,66 @@ public class Program
  */
 
 section .data
-    msg_input db 'Introduce la temperatura en Celsius: ', 0
-    msg_output db 'Temperatura en Fahrenheit: ', 0
-    newline db 10, 0
+    prompt db "Introduce la temperatura en Celsius: ", 0
+    result_msg db "La temperatura en Fahrenheit es: %.2f", 10, 0
+    scanf_format db "%lf", 0
+    nine dq 9.0        ; Definir 9.0 como un número de punto flotante de 64 bits
+    five dq 5.0        ; Definir 5.0 como un número de punto flotante de 64 bits
+    thirtytwo dq 32.0  ; Definir 32.0 como un número de punto flotante de 64 bits
 
 section .bss
-    celsius resb 10
-    fahrenheit resb 10
+    temp_celsius resq 1         ; Reservar espacio para la temperatura en Celsius
+    temp_fahrenheit resq 1      ; Reservar espacio para la temperatura en Fahrenheit
 
 section .text
+    extern printf, scanf
     global _start
 
 _start:
-    ; Imprimir el mensaje de entrada
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_input  ; puntero al mensaje
-    mov edx, 33         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
+    ; Imprimir mensaje solicitando la temperatura en Celsius
+    mov rdi, prompt            ; Dirección del mensaje
+    call printf
 
-    ; Leer la temperatura en Celsius desde la entrada
-    mov eax, 3          ; syscall para read
-    mov ebx, 0          ; descriptor de entrada (stdin)
-    mov ecx, celsius    ; puntero al buffer donde se almacena el número
-    mov edx, 10         ; tamaño máximo de caracteres a leer
-    int 0x80            ; interrupción del sistema
+    ; Leer la temperatura en Celsius
+    mov rdi, scanf_format      ; Formato para scanf
+    mov rsi, temp_celsius      ; Dirección donde se almacenará el valor ingresado
+    call scanf
 
-    ; Convertir la cadena de caracteres a número (simplificado para enteros)
-    mov eax, 0          ; reiniciar eax
-    mov ebx, celsius    ; puntero al buffer
-convert_loop:
-    movzx edx, byte [ebx]  ; cargar un byte del buffer
-    test edx, edx           ; verificar si es el fin de la cadena (null terminator)
-    jz done_convert
-    sub edx, '0'            ; convertir el carácter a número
-    imul eax, eax, 10       ; multiplicar el valor acumulado por 10
-    add eax, edx            ; agregar el nuevo dígito
-    inc ebx                 ; mover al siguiente carácter
-    jmp convert_loop
+    ; Cargar la temperatura en Celsius en xmm0
+    movsd xmm0, [temp_celsius] ; Cargar el valor de Celsius en xmm0
 
-done_convert:
-    ; Realizar la conversión de Celsius a Fahrenheit
-    ; Fórmula: F = (C * 9 / 5) + 32
-    mov ebx, eax        ; celsius guardado en ebx
-    imul eax, ebx, 9    ; celsius * 9
-    div ecx, 5          ; dividir el resultado entre 5
-    add eax, 32         ; sumar 32 para obtener Fahrenheit
+    ; Multiplicar Celsius por 9.0
+    movsd xmm1, [nine]         ; Cargar 9.0 en xmm1
+    mulsd xmm0, xmm1           ; xmm0 = xmm0 * xmm1 (Celsius * 9.0)
 
-    ; Mostrar el mensaje de salida
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_output ; puntero al mensaje
-    mov edx, 25         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
+    ; Dividir el resultado por 5.0
+    movsd xmm1, [five]         ; Cargar 5.0 en xmm1
+    divsd xmm0, xmm1           ; xmm0 = xmm0 / xmm1 (Celsius * 9.0 / 5.0)
 
-    ; Aquí añadir código para mostrar el valor de Fahrenheit
+    ; Sumar 32.0 al resultado
+    movsd xmm1, [thirtytwo]    ; Cargar 32.0 en xmm1
+    addsd xmm0, xmm1           ; xmm0 = xmm0 + xmm1 (Resultado + 32.0)
+
+    ; Almacenar el resultado en Fahrenheit
+    movsd [temp_fahrenheit], xmm0
+
+    ; Mostrar el resultado de la conversión
+    mov rdi, result_msg        ; Dirección del mensaje de resultado
+    mov rax, 1                 ; Número de parámetros (en este caso 1)
+    mov rsi, [temp_fahrenheit] ; Dirección del valor de Fahrenheit
+    call printf
 
     ; Salir del programa
-    mov eax, 1          ; syscall para exit
-    xor ebx, ebx        ; código de salida 0
-    int 0x80            ; interrupción del sistema
+    mov rax, 60                ; syscall número 60 (exit)
+    xor rdi, rdi               ; Código de salida 0
+    syscall                    ; Llamar al sistema para salir
+
 
  ```
 
 ### Corrida
 
-Introduce la temperatura en Celsius: 25
-25°C es igual a 77°F
+[![asciicast](https://asciinema.org/a/XM8MlCOzZclK1EA5qIubpW9cM.svg)](https://asciinema.org/a/XM8MlCOzZclK1EA5qIubpW9cM)
 
 
 ## 2.-Suma de dos números
