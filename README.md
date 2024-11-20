@@ -156,71 +156,55 @@ public class Program
 section .data
     msg_input1 db 'Introduce el primer número: ', 0
     msg_input2 db 'Introduce el segundo número: ', 0
-    msg_output db 'La suma es: ', 0
-    newline db 10, 0
+    msg_output db 'La suma es: %.2f', 10, 0
+    scanf_format db "%lf", 0
 
 section .bss
-    num1 resb 10
-    num2 resb 10
-    suma resb 10
+    num1 resq 1
+    num2 resq 1
+    suma resq 1
 
 section .text
+    extern printf, scanf
     global _start
 
 _start:
-    ; Imprimir el mensaje para el primer número
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_input1 ; puntero al mensaje
-    mov edx, 26         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
+    ; Leer el primer número
+    mov rdi, msg_input1
+    call printf
+    mov rdi, scanf_format
+    mov rsi, num1
+    call scanf
 
-    ; Leer el primer número desde la entrada
-    mov eax, 3          ; syscall para read
-    mov ebx, 0          ; descriptor de entrada (stdin)
-    mov ecx, num1       ; puntero al buffer donde se almacena el número
-    mov edx, 10         ; tamaño máximo de caracteres a leer
-    int 0x80            ; interrupción del sistema
+    ; Leer el segundo número
+    mov rdi, msg_input2
+    call printf
+    mov rdi, scanf_format
+    mov rsi, num2
+    call scanf
 
-    ; Imprimir el mensaje para el segundo número
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_input2 ; puntero al mensaje
-    mov edx, 29         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
-
-    ; Leer el segundo número desde la entrada
-    mov eax, 3          ; syscall para read
-    mov ebx, 0          ; descriptor de entrada (stdin)
-    mov ecx, num2       ; puntero al buffer donde se almacena el número
-    mov edx, 10         ; tamaño máximo de caracteres a leer
-    int 0x80            ; interrupción del sistema
-
-    ; Convertir los dos números (simplificado para enteros)
-    ; (Este proceso debe hacerse de forma similar a la conversión de Celsius a Fahrenheit)
-
-    ; Aquí va el código para convertir las cadenas a números enteros y realizar la suma.
+    ; Realizar la suma
+    movsd xmm0, [num1]
+    movsd xmm1, [num2]
+    addsd xmm0, xmm1
+    movsd [suma], xmm0
 
     ; Mostrar el resultado
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_output ; puntero al mensaje
-    mov edx, 13         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
-
-    ; Aquí agregar el código para imprimir la suma
+    mov rdi, msg_output
+    mov rax, 1
+    mov rsi, [suma]
+    call printf
 
     ; Salir del programa
-    mov eax, 1          ; syscall para exit
-    xor ebx, ebx        ; código de salida 0
-    int 0x80            ; interrupción del sistema
+    mov rax, 60
+    xor rdi, rdi
+    syscall
+
  ```
 
 ### Corrida
 
-Introduce el primer número: 11
-Introduce el segundo número: 25
-La suma de 11 y 25 es: 36
+[![asciicast](https://asciinema.org/a/pf7piTIeWOMcO2FuMlrJdQSip.svg)](https://asciinema.org/a/pf7piTIeWOMcO2FuMlrJdQSip)
 
 ## 3.-Resta de dos numeros
 
