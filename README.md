@@ -249,78 +249,56 @@ public class Program
 section .data
     msg_input1 db 'Introduce el primer número: ', 0
     msg_input2 db 'Introduce el segundo número: ', 0
-    msg_output db 'La resta es: ', 0
-    newline db 10, 0
+    msg_output db 'La resta es: %.2f', 10, 0
+    scanf_format db "%lf", 0
 
 section .bss
-    num1 resb 10
-    num2 resb 10
-    resta resb 10
+    num1 resq 1
+    num2 resq 1
+    resta resq 1
 
 section .text
+    extern printf, scanf
     global _start
 
 _start:
-    ; Imprimir el mensaje para el primer número
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_input1 ; puntero al mensaje
-    mov edx, 26         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
+    ; Leer el primer número
+    mov rdi, msg_input1
+    call printf
+    mov rdi, scanf_format
+    mov rsi, num1
+    call scanf
 
-    ; Leer el primer número desde la entrada
-    mov eax, 3          ; syscall para read
-    mov ebx, 0          ; descriptor de entrada (stdin)
-    mov ecx, num1       ; puntero al buffer donde se almacena el número
-    mov edx, 10         ; tamaño máximo de caracteres a leer
-    int 0x80            ; interrupción del sistema
-
-    ; Imprimir el mensaje para el segundo número
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_input2 ; puntero al mensaje
-    mov edx, 29         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
-
-    ; Leer el segundo número desde la entrada
-    mov eax, 3          ; syscall para read
-    mov ebx, 0          ; descriptor de entrada (stdin)
-    mov ecx, num2       ; puntero al buffer donde se almacena el número
-    mov edx, 10         ; tamaño máximo de caracteres a leer
-    int 0x80            ; interrupción del sistema
-
-    ; Convertir los dos números (simplificado para enteros)
-    ; (Este proceso debe hacerse de forma similar a la conversión de cadenas a números)
-
-    ; Aquí va el código para convertir las cadenas a números enteros y realizar la resta.
+    ; Leer el segundo número
+    mov rdi, msg_input2
+    call printf
+    mov rdi, scanf_format
+    mov rsi, num2
+    call scanf
 
     ; Realizar la resta
-    ; Asegúrate de que el número 1 está en eax y el número 2 en ebx
-    ; Restar num2 de num1
-    mov eax, [num1]     ; cargar num1 en eax
-    sub eax, [num2]     ; restar num2 de num1
+    movsd xmm0, [num1]
+    movsd xmm1, [num2]
+    subsd xmm0, xmm1
+    movsd [resta], xmm0
 
     ; Mostrar el resultado
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_output ; puntero al mensaje
-    mov edx, 13         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
-
-    ; Aquí agregar el código para imprimir la resta
+    mov rdi, msg_output
+    mov rax, 1
+    mov rsi, [resta]
+    call printf
 
     ; Salir del programa
-    mov eax, 1          ; syscall para exit
-    xor ebx, ebx        ; código de salida 0
-    int 0x80            ; interrupción del sistema
+    mov rax, 60
+    xor rdi, rdi
+    syscall
+
 
    ```
 
 ### Corrida
 
-Introduce el primer número: 10
-Introduce el segundo número: 5
-La resta de 10 y 5 es: 5
+[![asciicast](https://asciinema.org/a/unVgYaIRXkWg18psqR9BtDOSZ.svg)](https://asciinema.org/a/unVgYaIRXkWg18psqR9BtDOSZ)
 
 ## 4.-Multiplicación de dos números
 
@@ -366,78 +344,55 @@ public class Program
 section .data
     msg_input1 db 'Introduce el primer número: ', 0
     msg_input2 db 'Introduce el segundo número: ', 0
-    msg_output db 'La multiplicación es: ', 0
-    newline db 10, 0
+    msg_output db 'La multiplicación es: %.2f', 10, 0
+    scanf_format db "%lf", 0
 
 section .bss
-    num1 resb 10
-    num2 resb 10
-    resultado resb 10
+    num1 resq 1
+    num2 resq 1
+    resultado resq 1
 
 section .text
+    extern printf, scanf
     global _start
 
 _start:
-    ; Imprimir el mensaje para el primer número
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_input1 ; puntero al mensaje
-    mov edx, 26         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
+    ; Leer el primer número
+    mov rdi, msg_input1
+    call printf
+    mov rdi, scanf_format
+    mov rsi, num1
+    call scanf
 
-    ; Leer el primer número desde la entrada
-    mov eax, 3          ; syscall para read
-    mov ebx, 0          ; descriptor de entrada (stdin)
-    mov ecx, num1       ; puntero al buffer donde se almacena el número
-    mov edx, 10         ; tamaño máximo de caracteres a leer
-    int 0x80            ; interrupción del sistema
-
-    ; Imprimir el mensaje para el segundo número
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_input2 ; puntero al mensaje
-    mov edx, 29         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
-
-    ; Leer el segundo número desde la entrada
-    mov eax, 3          ; syscall para read
-    mov ebx, 0          ; descriptor de entrada (stdin)
-    mov ecx, num2       ; puntero al buffer donde se almacena el número
-    mov edx, 10         ; tamaño máximo de caracteres a leer
-    int 0x80            ; interrupción del sistema
-
-    ; Convertir los dos números (simplificado para enteros)
-    ; (Este proceso debe hacerse de forma similar a la conversión de cadenas a números)
-
-    ; Aquí va el código para convertir las cadenas a números enteros y realizar la multiplicación.
+    ; Leer el segundo número
+    mov rdi, msg_input2
+    call printf
+    mov rdi, scanf_format
+    mov rsi, num2
+    call scanf
 
     ; Realizar la multiplicación
-    ; Asegúrate de que el número 1 está en eax y el número 2 en ebx
-    ; Multiplicar num1 y num2
-    mov eax, [num1]     ; cargar num1 en eax
-    imul eax, [num2]    ; multiplicar eax por num2
+    movsd xmm0, [num1]    ; Cargar el primer número en xmm0
+    movsd xmm1, [num2]    ; Cargar el segundo número en xmm1
+    mulsd xmm0, xmm1      ; Multiplicar xmm0 por xmm1
+    movsd [resultado], xmm0 ; Almacenar el resultado
 
     ; Mostrar el resultado
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_output ; puntero al mensaje
-    mov edx, 20         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
-
-    ; Aquí agregar el código para imprimir el resultado
+    mov rdi, msg_output
+    mov rax, 1            ; Número de argumentos a printf
+    mov rsi, [resultado]  ; Dirección del resultado
+    call printf
 
     ; Salir del programa
-    mov eax, 1          ; syscall para exit
-    xor ebx, ebx        ; código de salida 0
-    int 0x80            ; interrupción del sistema
+    mov rax, 60           ; syscall número 60 (exit)
+    xor rdi, rdi          ; Código de salida 0
+    syscall
+
 
 ```
 
 ### Corrida
-
-Introduce el primer número: 12
-Introduce el segundo número: 8
-La multiplicación es: 96
+[![asciicast](https://asciinema.org/a/CGv9BYdDHWNqvk1X7oDduwDMm.svg)](https://asciinema.org/a/CGv9BYdDHWNqvk1X7oDduwDMm)
 
 ## 5.-División de dos números
 ### C# - DivisionDeDosNumeros.cs
