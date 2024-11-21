@@ -3406,6 +3406,7 @@ target_function:
     ret
 
 ```
+[![asciicast](https://asciinema.org/a/OmMxyZrnSCq6jARjrITpywAM5.svg)](https://asciinema.org/a/OmMxyZrnSCq6jARjrITpywAM5)
 ## 49.-Leer entrada desde el teclado
 
 ```
@@ -3433,6 +3434,7 @@ read_input:
     ret                       // Retorna el valor leído desde el teclado en x0
 
 ```
+[![asciicast](https://asciinema.org/a/5SBkZmAW2aFqEfb7ySenWwCI6.svg)](https://asciinema.org/a/5SBkZmAW2aFqEfb7ySenWwCI6)
 ## 50.-Escribir en un archivo
 
 ```
@@ -3457,3 +3459,4 @@ write_to_file:
     ret                       // Retorna después de escribir en el archivo
 
 ```
+[![asciicast](https://asciinema.org/a/XLoOlSAyGe2iynbGKfmKsfBga.svg)](https://asciinema.org/a/XLoOlSAyGe2iynbGKfmKsfBga)
