@@ -2948,7 +2948,7 @@ end_queue_operation:
     ret                      // Finaliza la función
 
 ```
-
+[![asciicast](https://asciinema.org/a/Mj8lBK4ggZvjed82zow06e5ar.svg)](https://asciinema.org/a/Mj8lBK4ggZvjed82zow06e5ar)
 ## 39.-Convertir decimal a binario
 
 ```
@@ -2995,6 +2995,7 @@ end_conversion:
     ret                      // Finaliza la función
 
 ```
+[![asciicast](https://asciinema.org/a/b8hRgRMrg5dtyc6yOKgDy01aU.svg)](https://asciinema.org/a/b8hRgRMrg5dtyc6yOKgDy01aU)
 ## 40.-Convertir binario a decimal
 
 ```
@@ -3044,6 +3045,7 @@ end_conversion:
     ret                      // Finaliza la función
 
 ```
+[![asciicast](https://asciinema.org/a/cFoa3vmUcnsysW62nnRMBmG4x.svg)](https://asciinema.org/a/cFoa3vmUcnsysW62nnRMBmG4x)
 ## 41.-Conversión de decimal a hexadecimal
 
 ```
@@ -3090,6 +3092,7 @@ end_conversion:
     ret                      // Finaliza la función
 
 ```
+[![asciicast](https://asciinema.org/a/cFoa3vmUcnsysW62nnRMBmG4x.svg)](https://asciinema.org/a/cFoa3vmUcnsysW62nnRMBmG4x)
 ## 42.-Conversión de hexadecimal a decimal
 
 ```
@@ -3154,6 +3157,7 @@ end_conversion:
     ret                      // Finaliza la función
 
 ```
+[![asciicast](https://asciinema.org/a/JzQk1BwoXFTDczVNa1Fqlq8LL.svg)](https://asciinema.org/a/JzQk1BwoXFTDczVNa1Fqlq8LL)
 ## 43.-Calculadora simple (Suma, Resta, Multiplicación, División)
 
 ```
@@ -3218,6 +3222,7 @@ end_calculation:
 
 
 ```
+[![asciicast](https://asciinema.org/a/i29zBsWhMFZfk4EpiX099IHrV.svg)](https://asciinema.org/a/i29zBsWhMFZfk4EpiX099IHrV)
 ## 44.-	Generación de números aleatorios (con semilla)
 
 ```
@@ -3246,6 +3251,7 @@ random_number_generator:
     ret                      // Retorna el número aleatorio generado
 
 ```
+[![asciicast](https://asciinema.org/a/CVkbpUAUHjHZUCuXIaqt7AUrM.svg)](https://asciinema.org/a/CVkbpUAUHjHZUCuXIaqt7AUrM)
 ## 45.-Verificar si un número es Armstrong
 
 ```
@@ -3308,6 +3314,7 @@ armstrong_number:
     ret
 
 ```
+[![asciicast](https://asciinema.org/a/utqA0X3SaFQLF6Bm4JRXe9jSi.svg)](https://asciinema.org/a/utqA0X3SaFQLF6Bm4JRXe9jSi)
 ## 46.-Encontrar prefijo común más largo en cadenas
 
 ```
@@ -3339,6 +3346,8 @@ end_compare:
     ret                      // Retorna el resultado
 
 ```
+[![asciicast](https://asciinema.org/a/t60xvwpjkkcQ4FDQC1D21j1v6.svg)](https://asciinema.org/a/t60xvwpjkkcQ4FDQC1D21j1v6)
+
 ## 47.-Detección de desbordamiento en suma
 
 ```
@@ -3361,6 +3370,7 @@ detect_overflow:
     ret                     // Retorna el resultado
 
 ```
+[![asciicast](https://asciinema.org/a/FAOOn6TeM1HQXNauOge7hopBz.svg)](https://asciinema.org/a/FAOOn6TeM1HQXNauOge7hopBz)
 ## 48.-Medir el tiempo de ejecución de una función
 
 ```
