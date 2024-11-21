@@ -1691,6 +1691,8 @@ found:
 
 ```
 
+[![asciicast](https://asciinema.org/a/nGHTtBF9IxfsTWVStfA77k8wu.svg)](https://asciinema.org/a/nGHTtBF9IxfsTWVStfA77k8wu)
+
 ## 15.- Búsqueda binaria
 
 ### C#
@@ -1753,6 +1755,7 @@ not_found:
     ret
 
 ```
+[![asciicast](https://asciinema.org/a/C89l3jkMPEKvMssTC2fkTZJ0K.svg)](https://asciinema.org/a/C89l3jkMPEKvMssTC2fkTZJ0K)
 
 ## 16.-Ordenamiento burbuja
 
@@ -1814,6 +1817,7 @@ next_pass:
 end_sort:
     ret                      // Termina el ordenamiento
 ```
+[![asciicast](https://asciinema.org/a/ViVAq2aOWWJlBK3rkbmaG1bfx.svg)](https://asciinema.org/a/ViVAq2aOWWJlBK3rkbmaG1bfx)
 
 ## 17.- Ordenamiento por selección
 
@@ -1887,6 +1891,7 @@ continue_outer_loop:
 end_sort:
     ret                       // Termina el ordenamiento
 ```
+[![asciicast](https://asciinema.org/a/7B5AOwFuOTuhsYYiHAmcIFiLe.svg)](https://asciinema.org/a/7B5AOwFuOTuhsYYiHAmcIFiLe)
 
 ## 18.-Ordenamiento por mezcla (Merge Sort)
 
@@ -1976,6 +1981,7 @@ merge:
     // TODO: Implementar el proceso de fusión de los dos subarreglos
     ret
 ```
+[![asciicast](https://asciinema.org/a/GB1sFMrihNkqvTvcUNma5c02N.svg)](https://asciinema.org/a/GB1sFMrihNkqvTvcUNma5c02N)
 
 ## 19.-Suma de matrices
 
@@ -2040,6 +2046,7 @@ next_row:
 end_sum:
     ret                       // Termina la suma de matrices
 ```
+[![asciicast](https://asciinema.org/a/oJgFwQc9wQh7d41AFHFeRlcwW.svg)](https://asciinema.org/a/oJgFwQc9wQh7d41AFHFeRlcwW)
 
 ## 20 Multiplicación de matrices
 
@@ -2124,6 +2131,7 @@ next_row:
 end_multiply:
     ret                       // Termina la multiplicación de matrices
 ```
+[![asciicast](https://asciinema.org/a/WICuE0c0zz54ihPRTzQiNHLm7.svg)](https://asciinema.org/a/WICuE0c0zz54ihPRTzQiNHLm7)
 
 ## 21.-Transposición de una matriz
 
@@ -2183,6 +2191,8 @@ next_row:
 end_transpose:
     ret                       // Termina la transposición de la matriz
 ```
+[![asciicast](https://asciinema.org/a/mO5ZJYHb4pIWFK63mEOR9XiXS.svg)](https://asciinema.org/a/mO5ZJYHb4pIWFK63mEOR9XiXS)
+
 ## 22.-Conversión de ASCII a entero
 
 ```
@@ -2205,6 +2215,7 @@ ascii_to_int:
     sub x0, x0, '0'           // Convierte el carácter ASCII a su valor entero
     ret                        // Retorna el valor entero correspondiente
 ```
+[![asciicast](https://asciinema.org/a/DwWkIsMHM5fcaqN7At7tPzqDr.svg)](https://asciinema.org/a/DwWkIsMHM5fcaqN7At7tPzqDr)
 
 ## 23.-Conversión de entero a ASCII
 
@@ -2228,6 +2239,8 @@ int_to_ascii:
     add x0, x0, '0'           // Convierte el entero a su carácter ASCII correspondiente
     ret                        // Retorna el carácter ASCII
 ```
+[![asciicast](https://asciinema.org/a/DwWkIsMHM5fcaqN7At7tPzqDr.svg)](https://asciinema.org/a/DwWkIsMHM5fcaqN7At7tPzqDr)
+
 ## 24.-Calcular la longitud de una cadena
 
 ```
@@ -2259,6 +2272,7 @@ end_length:
     mov x0, x1               // La longitud de la cadena se encuentra en x1
     ret                      // Retorna la longitud de la cadena
 ```
+[![asciicast](https://asciinema.org/a/lSBcHaWyaqKJYPgnYzYLBEAw4.svg)](https://asciinema.org/a/lSBcHaWyaqKJYPgnYzYLBEAw4)
 
 ## 25.-Contar vocales y consonantes
 
@@ -2336,6 +2350,7 @@ end_count:
     mov x1, x3               // Retorna el número de consonantes en x1
     ret                      // Termina el conteo
 ```
+[![asciicast](https://asciinema.org/a/69xv2o0kYlsfVV2m0SdVq5rds.svg)](https://asciinema.org/a/69xv2o0kYlsfVV2m0SdVq5rds)
 
 ## 26.- Operaciones AND, OR, XOR a nivel de bits
 
@@ -2372,6 +2387,7 @@ bitwise_operations:
 
     ret                       // Retorna los resultados en x0 (AND), x1 (OR), x2 (XOR)
 ```
+[![asciicast](https://asciinema.org/a/RR5QoPK1bkrd6TnEnosGtvlCR.svg)](https://asciinema.org/a/RR5QoPK1bkrd6TnEnosGtvlCR)
 
 ## 27.-Desplazamientos a la izquierda y derecha
 
