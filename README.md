@@ -442,94 +442,70 @@ public class Program
 section .data
     msg_input1 db 'Introduce el primer número: ', 0
     msg_input2 db 'Introduce el segundo número: ', 0
-    msg_output db 'La división es: ', 0
+    msg_output db 'La división es: %lf', 10, 0  ; Formato de printf para mostrar double
     msg_error db 'Error: No se puede dividir por cero.', 10, 0
-    newline db 10, 0
+    scanf_format db "%lf", 0
 
 section .bss
-    num1 resb 10
-    num2 resb 10
-    resultado resb 10
+    num1 resq 1      ; Reservar espacio para un double
+    num2 resq 1      ; Reservar espacio para un double
+    resultado resq 1 ; Reservar espacio para el resultado
 
 section .text
+    extern printf, scanf
     global _start
 
 _start:
-    ; Imprimir el mensaje para el primer número
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_input1 ; puntero al mensaje
-    mov edx, 26         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
+    ; Imprimir mensaje para el primer número
+    mov rdi, msg_input1
+    call printf
+    mov rdi, scanf_format
+    mov rsi, num1
+    call scanf
 
-    ; Leer el primer número desde la entrada
-    mov eax, 3          ; syscall para read
-    mov ebx, 0          ; descriptor de entrada (stdin)
-    mov ecx, num1       ; puntero al buffer donde se almacena el número
-    mov edx, 10         ; tamaño máximo de caracteres a leer
-    int 0x80            ; interrupción del sistema
+    ; Imprimir mensaje para el segundo número
+    mov rdi, msg_input2
+    call printf
+    mov rdi, scanf_format
+    mov rsi, num2
+    call scanf
 
-    ; Imprimir el mensaje para el segundo número
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_input2 ; puntero al mensaje
-    mov edx, 29         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
+    ; Verificar si num2 es cero para evitar división por cero
+    movsd xmm0, [num2]      ; Cargar num2 en xmm0
+    xorps xmm1, xmm1        ; Limpiar xmm1
+    comisd xmm0, xmm1       ; Comparar num2 con 0
+    je error_division       ; Si es igual a cero, saltar a error_division
 
-    ; Leer el segundo número desde la entrada
-    mov eax, 3          ; syscall para read
-    mov ebx, 0          ; descriptor de entrada (stdin)
-    mov ecx, num2       ; puntero al buffer donde se almacena el número
-    mov edx, 10         ; tamaño máximo de caracteres a leer
-    int 0x80            ; interrupción del sistema
+    ; Realizar la división (resultado = num1 / num2)
+    movsd xmm0, [num1]      ; Cargar num1 en xmm0
+    divsd xmm0, [num2]      ; Realizar la división
+    movsd [resultado], xmm0 ; Almacenar el resultado
 
-    ; Convertir los dos números (simplificado para enteros)
-    ; (Este proceso debe hacerse de forma similar a la conversión de cadenas a números)
-
-    ; Realizar la verificación de la división por cero
-    mov eax, [num2]     ; cargar num2 en eax
-    test eax, eax       ; verificar si num2 es cero
-    jz error_division   ; si num2 es cero, saltar a error_division
-
-    ; Realizar la división: resultado = num1 / num2
-    mov eax, [num1]     ; cargar num1 en eax
-    mov ebx, [num2]     ; cargar num2 en ebx
-    xor edx, edx        ; limpiar edx (es necesario para la división)
-    div ebx             ; eax = eax / ebx, edx = eax % ebx
-
-    ; Mostrar el resultado de la división
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_output ; puntero al mensaje
-    mov edx, 15         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
-
-    ; Aquí agregar el código para imprimir el resultado (en eax)
-    ; Puede utilizar un convertidor para mostrar el resultado en texto
+    ; Mostrar el resultado
+    mov rdi, msg_output
+    mov rax, 1              ; Número de parámetros para printf
+    mov rsi, [resultado]    ; Cargar el resultado en rsi
+    call printf
 
     ; Salir del programa
-    mov eax, 1          ; syscall para exit
-    xor ebx, ebx        ; código de salida 0
-    int 0x80            ; interrupción del sistema
+    mov rax, 60             ; syscall para exit
+    xor rdi, rdi            ; Código de salida 0
+    syscall
 
 error_division:
     ; Mostrar el mensaje de error (división por cero)
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_error  ; puntero al mensaje de error
-    mov edx, 37         ; longitud del mensaje de error
-    int 0x80            ; interrupción del sistema
+    mov rdi, msg_error
+    mov rax, 1              ; Número de parámetros para printf
+    call printf
 
-    ; Salir del programa
-    mov eax, 1          ; syscall para exit
-    xor ebx, ebx        ; código de salida 0
-    int 0x80            ; interrupción del sistema
-```
+    ; Salir del programa con código de error
+    mov rax, 60             ; syscall para exit
+    mov rdi, 1              ; Código de salida 1 (error)
+    syscall
+
 ## Corrida
 
-Introduce el primer número: 20
-Introduce el segundo número: 4
-La división es: 5
+[![asciicast](https://asciinema.org/a/1M9ByAae9fhpHTbNaJkhthlK7.svg)](https://asciinema.org/a/1M9ByAae9fhpHTbNaJkhthlK7)
 
 ## 6.-Suma de los N primeros números naturales
 ### C# - SumaDeLosNPrimerosNumeros.cs
@@ -854,94 +830,82 @@ public class Program
 
 ```
 section .data
-    msg_input db 'Introduce la cantidad de términos de la serie de Fibonacci: ', 0
+    msg_input db 'Introduce el número para calcular Fib: ', 0
+    msg_output db 'El número Fibonacci es: ', 0
     newline db 10, 0
+    fmt db "%d", 0
 
 section .bss
-    n resb 10
-    a resd 1
-    b resd 1
-    c resd 1
+    num resq 1          ; Variable para almacenar el número introducido
+    result resq 1       ; Variable para almacenar el resultado
 
 section .text
+    extern printf, scanf
     global _start
 
 _start:
-    ; Imprimir el mensaje para introducir el número de términos
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_input  ; puntero al mensaje
-    mov edx, 52         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
+    ; Imprimir el mensaje de entrada
+    mov rdi, msg_input
+    call printf
 
-    ; Leer el valor de N desde la entrada
-    mov eax, 3          ; syscall para read
-    mov ebx, 0          ; descriptor de entrada (stdin)
-    mov ecx, n          ; puntero al buffer donde se almacena el número
-    mov edx, 10         ; tamaño máximo de caracteres a leer
-    int 0x80            ; interrupción del sistema
+    ; Leer el número de Fibonacci
+    mov rdi, fmt
+    mov rsi, num
+    call scanf
 
-    ; Convertir la cadena de caracteres a número (simplificado)
-    mov eax, [n]        ; cargar el valor de N
-    sub eax, '0'        ; convertir de ASCII a número
+    ; Calcular el Fibonacci (llamando a la función)
+    mov rdi, [num]
+    call fibonacci
 
-    ; Inicializar los primeros dos términos de Fibonacci
-    mov dword [a], 0    ; a = 0
-    mov dword [b], 1    ; b = 1
+    ; Mostrar el mensaje de salida
+    mov rdi, msg_output
+    call printf
 
-    ; Imprimir el primer término (0)
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, a          ; puntero al valor de a
-    mov edx, 1          ; longitud del valor
-    int 0x80            ; interrupción del sistema
+    ; Imprimir el resultado de Fibonacci
+    mov rdi, fmt
+    mov rsi, [result]
+    call printf
 
-    ; Imprimir el segundo término (1)
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, b          ; puntero al valor de b
-    mov edx, 1          ; longitud del valor
-    int 0x80            ; interrupción del sistema
+    ; Finalizar el programa
+    mov rax, 60          ; syscall exit
+    xor rdi, rdi         ; estado de salida 0
+    syscall
 
-    ; Calcular y mostrar los siguientes términos de Fibonacci
-    mov ecx, 3          ; iniciar el bucle para el tercer término (i = 3)
-fibonacci_loop:
-    mov eax, [a]        ; cargar a
-    add eax, [b]        ; a + b
-    mov [c], eax        ; guardar el resultado en c
+fibonacci:
+    ; Función para calcular Fibonacci de manera recursiva
+    ; Entrada: rdi = n (número para calcular Fibonacci)
+    ; Salida: rax = Fibonacci(n)
+    cmp rdi, 0           ; Si n == 0, entonces return 0
+    je fib_base_case
+    cmp rdi, 1           ; Si n == 1, entonces return 1
+    je fib_base_case_1
 
-    ; Imprimir el valor de c
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, c          ; puntero al valor de c
-    mov edx, 1          ; longitud del valor
-    int 0x80            ; interrupción del sistema
+    push rdi             ; Guardar n en la pila
+    dec rdi              ; n = n - 1
+    call fibonacci       ; Llamada recursiva con n - 1
+    mov rbx, rax         ; Guardamos el resultado de Fibonacci(n - 1) en rbx
 
-    ; Actualizar a y b
-    mov eax, [b]        ; cargar b
-    mov [a], eax        ; a = b
-    mov eax, [c]        ; cargar c
-    mov [b], eax        ; b = c
+    pop rdi              ; Recuperamos n
+    dec rdi              ; n = n - 2
+    call fibonacci       ; Llamada recursiva con n - 2
+    add rax, rbx         ; Fibonacci(n) = Fibonacci(n-1) + Fibonacci(n-2)
+    mov [result], rax    ; Guardamos el resultado en la variable 'result'
+    ret
 
-    ; Incrementar el contador
-    inc ecx             ; incrementar i
-    cmp ecx, [n]        ; comparar i con N
-    jle fibonacci_loop  ; si i <= N, continuar el bucle
+fib_base_case:
+    mov rax, 0           ; Fibonacci(0) = 0
+    mov [result], rax    ; Guardamos el resultado
+    ret
 
-    ; Salir del programa
-    mov eax, 1          ; syscall para exit
-    xor ebx, ebx        ; código de salida 0
-    int 0x80            ; interrupción del sistema
+fib_base_case_1:
+    mov rax, 1           ; Fibonacci(1) = 1
+    mov [result], rax    ; Guardamos el resultado
+    ret
+
 ```
 ### Corrida
-Introduce la cantidad de términos de la serie de Fibonacci: 7
-Serie de Fibonacci: 0
-1
-1
-2
-3
-5
-8
+
+[![asciicast](https://asciinema.org/a/mUo9W7OTIJlcImUXkRTLGsQgL.svg)](https://asciinema.org/a/mUo9W7OTIJlcImUXkRTLGsQgL)
 
 ## 9.- Verificar si un número es primo
 ### C# - Primo.cs
