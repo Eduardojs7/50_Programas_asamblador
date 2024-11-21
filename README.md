@@ -1055,6 +1055,7 @@ exit:
 ### Corrida
 
 [![asciicast](https://asciinema.org/a/OosFB0rNuKytQ27tinyCU2ms9.svg)](https://asciinema.org/a/OosFB0rNuKytQ27tinyCU2ms9)
+
 ## 10.-Invertir una cadena
 ### C# - InvertirCadena.cs
 
