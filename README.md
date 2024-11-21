@@ -1,5 +1,5 @@
 # 50_Programas_asamblador
-## Sanchez salinas edudardo josue 20210637
+## Sanchez Salinas Eduardo Josue 20210637
 
 ## 1.-Convertidor de Temperatura de Celsius a Fahrenheit
 
