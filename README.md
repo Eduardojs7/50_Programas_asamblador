@@ -2421,6 +2421,7 @@ shift_operations:
 
     ret                      // Retorna los resultados en x0 (izquierda), x1 (derecha)
 ```
+[![asciicast](https://asciinema.org/a/p99Ccw0VHdrUL1dCLJpH45V5S.svg)](https://asciinema.org/a/p99Ccw0VHdrUL1dCLJpH45V5S)
 ## 28.-	Establecer, borrar y alternar bits
 ```
 // Autor: Sanchez Salinas Eduardo Josue
@@ -2463,7 +2464,7 @@ bit_manipulation:
 
     ret                      // Retorna los resultados en x0 (establecer), x1 (borrar), x2 (alternar)
 ```
-
+[![asciicast](https://asciinema.org/a/SDdnRgZB42xdKJEJQslqL2Sqh.svg)](https://asciinema.org/a/SDdnRgZB42xdKJEJQslqL2Sqh)
 ## 29.- Contar los bits activados en un número
 
 ```
@@ -2499,6 +2500,7 @@ loop:
     mov x0, x1               // Retorna el número de bits activados en x0
     ret                      // Termina la función
 ```
+[![asciicast](https://asciinema.org/a/JhYnbwdrzyNSc51bp6yUB3vKi.svg)](https://asciinema.org/a/JhYnbwdrzyNSc51bp6yUB3vKi)
 ## 30.-	Máximo Común Divisor (MCD)
 
 ```
@@ -2536,6 +2538,8 @@ loop:
 end_gcd:
     ret                      // Retorna el MCD en x0
 ```
+[![asciicast](https://asciinema.org/a/2k80mbotgtQaxG8nDzGaIulel.svg)](https://asciinema.org/a/2k80mbotgtQaxG8nDzGaIulel)
+
 ## 31.-Mínimo Común Múltiplo (MCM)
 
 ```
@@ -2568,6 +2572,7 @@ lcm:
 
     ret                      // Retorna el MCM en x0
 ```
+[![asciicast](https://asciinema.org/a/DsSPdp9zHorAPUizWEv2UzMmp.svg)](https://asciinema.org/a/DsSPdp9zHorAPUizWEv2UzMmp)
 
 ## 32.-Potencia (x^n)
 
@@ -2604,7 +2609,7 @@ base_case:
     mov x0, 1                // Si n == 0, el resultado es 1
     ret                      // Retorna 1
 ```
-
+[![asciicast](https://asciinema.org/a/Tdr3mrkUbn6N1xPmiON0gy3Cr.svg)](https://asciinema.org/a/Tdr3mrkUbn6N1xPmiON0gy3Cr)
 ## 33.-Suma de elementos en un arreglo
 
 ```
@@ -2646,7 +2651,7 @@ end_sum:
     mov x0, x2               // Retorna la suma en x0
     ret                      // Finaliza la función
 ```
-
+[![asciicast](https://asciinema.org/a/ut10pC3zpHUsoFrRGOuPB9Nru.svg)](https://asciinema.org/a/ut10pC3zpHUsoFrRGOuPB9Nru)
 ## 34.-Invertir los elementos de un arreglo
 
 ```
@@ -2695,6 +2700,7 @@ loop:
 end_reverse:
     ret                      // Termina la función
 ```
+[![asciicast](https://asciinema.org/a/LLHf2cT8FM4gdpZL5zLDlKsMv.svg)](https://asciinema.org/a/LLHf2cT8FM4gdpZL5zLDlKsMv)
 ## 35.-Rotación de un arreglo (izquierda/derecha)
 ```
 // Autor: Sanchez Salinas Eduardo Josue
@@ -2743,6 +2749,7 @@ rotate_array:
 
     add x8, x0, x4   // Continúa implementando la rotación con los otros 32 bits
 ```
+[![asciicast](https://asciinema.org/a/7qQGtt9wn1DQSfv3jYc2e3rGP.svg)](https://asciinema.org/a/7qQGtt9wn1DQSfv3jYc2e3rGP)
 ## 36.-Encontrar el segundo elemento más grande
 
 ```
@@ -2806,6 +2813,7 @@ end_second_largest:
     ret                      // Finaliza la función
 
 ```
+[![asciicast](https://asciinema.org/a/4S7Jw7dIsmIHT5cRh5gchISZ1.svg)](https://asciinema.org/a/4S7Jw7dIsmIHT5cRh5gchISZ1)
 ## 37.-Implementar una pila usando un arreglo
 
 ```
@@ -2869,6 +2877,8 @@ end_stack_operation:
 
 
 ```
+[![asciicast](https://asciinema.org/a/4xVUfBT5dMxbXHLHdDKzoC0or.svg)](https://asciinema.org/a/4xVUfBT5dMxbXHLHdDKzoC0or)
+
 ## 38.-Implementar una cola usando un arreglo
 
 ```
