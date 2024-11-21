@@ -1180,8 +1180,7 @@ done_invertir:
 ```
 ### Corrida
 
-Introduce una cadena de texto: Hola Mundo
-La cadena invertida es: odnuM aloH
+[![asciicast](https://asciinema.org/a/awHTVT9J2EjLUJ3iV4IZ5pMY6.svg)](https://asciinema.org/a/awHTVT9J2EjLUJ3iV4IZ5pMY6)
 
 
 ## 11.- Verificar si una cadena es palíndromo
@@ -1322,8 +1321,7 @@ exit:
 ```
 ### Corrida
 
-Introduce una cadena de texto: reconocer
-La cadena 'reconocer' es un palíndromo.
+[![asciicast](https://asciinema.org/a/3ZR0tqC5r4bV9hdyTCGkyjxtR.svg)](https://asciinema.org/a/3ZR0tqC5r4bV9hdyTCGkyjxtR)
 
 ## 12.-Encontrar el máximo en un arreglo
 ### C# - MaxEnArreglo.cs
@@ -1471,8 +1469,7 @@ continue_find:
 ```
 ### Corrida
 
-Introduce los elementos del arreglo separados por espacio: 5 8 2 12 3 7
-El valor máximo en el arreglo es: 12
+[![asciicast](https://asciinema.org/a/bBnVduveHkddE5cHXUpiryySo.svg)](https://asciinema.org/a/bBnVduveHkddE5cHXUpiryySo)
 
 ## 13.-Encontrar el mínimo en un arreglo
 ### C# - MinEnArreglo.cs
@@ -1616,8 +1613,7 @@ continue_find:
     int 0x80                ; interrupción del sistema
 ```
 ### Corrida
-Introduce los elementos del arreglo separados por espacio: 5 8 2 12 3 7
-El valor mínimo en el arreglo es: 2
+[![asciicast](https://asciinema.org/a/rWC5rE3BGc9AbFoKtJQvLzEUA.svg)](https://asciinema.org/a/rWC5rE3BGc9AbFoKtJQvLzEUA)
 
 # 14.-búsqueda lineal 
 
