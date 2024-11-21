@@ -152,7 +152,7 @@ public class Program
 
 ### Asambleador
 
-```
+```  
 section .data
     msg_input1 db 'Introduce el primer número: ', 0
     msg_input2 db 'Introduce el segundo número: ', 0
@@ -339,6 +339,7 @@ public class Program
 ```
 
 ### Asambleador
+
 ```
 
 section .data
@@ -387,7 +388,6 @@ _start:
     mov rax, 60           ; syscall número 60 (exit)
     xor rdi, rdi          ; Código de salida 0
     syscall
-
 
 ```
 
@@ -502,6 +502,7 @@ error_division:
     mov rax, 60             ; syscall para exit
     mov rdi, 1              ; Código de salida 1 (error)
     syscall
+```
 
 ## Corrida
 
@@ -702,77 +703,71 @@ public class Program
 section .data
     msg_input db 'Introduce un número: ', 0
     msg_output db 'El factorial es: ', 0
-    newline db 10, 0
+    fmt db "%d", 0
 
 section .bss
-    numero resb 10
-    resultado resd 1
+    numero resq 1          ; Variable para almacenar el número introducido
+    resultado resq 1       ; Variable para almacenar el resultado
 
 section .text
+    extern printf, scanf
     global _start
 
 _start:
-    ; Imprimir el mensaje para introducir un número
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_input  ; puntero al mensaje
-    mov edx, 24         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
+    ; Imprimir el mensaje de entrada
+    mov rdi, msg_input
+    call printf
 
-    ; Leer el número desde la entrada
-    mov eax, 3          ; syscall para read
-    mov ebx, 0          ; descriptor de entrada (stdin)
-    mov ecx, numero     ; puntero al buffer donde se almacena el número
-    mov edx, 10         ; tamaño máximo de caracteres a leer
-    int 0x80            ; interrupción del sistema
+    ; Leer el número de entrada
+    mov rdi, fmt
+    mov rsi, numero
+    call scanf
 
-    ; Convertir la cadena de caracteres a número (simplificado)
-    mov eax, [numero]   ; cargar el número
-    sub eax, '0'        ; convertir de ASCII a número
-
-    ; Llamar a la función factorial recursiva
-    push eax            ; empujar el número en la pila
-    call factorial      ; llamar a la función factorial
+    ; Calcular el factorial
+    mov rdi, [numero]   ; Cargar el número introducido
+    call factorial
 
     ; Mostrar el mensaje de salida
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_output ; puntero al mensaje
-    mov edx, 17         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
+    mov rdi, msg_output
+    call printf
 
     ; Mostrar el resultado
-    ; (Este paso requiere la conversión del número a texto para mostrarlo)
+    mov rdi, fmt
+    mov rsi, [resultado]
+    call printf
 
-    ; Salir del programa
-    mov eax, 1          ; syscall para exit
-    xor ebx, ebx        ; código de salida 0
-    int 0x80            ; interrupción del sistema
+    ; Finalizar el programa
+    mov rax, 60          ; syscall exit
+    xor rdi, rdi         ; código de salida 0
+    syscall
 
 factorial:
-    ; Factorial recursivo: factorial(n)
-    ; Entrada: eax = n (número a calcular el factorial)
-    ; Salida: eax = factorial(n)
+    ; Función para calcular el factorial de manera recursiva
+    ; Entrada: rdi = n (número para calcular factorial)
+    ; Salida: rax = factorial(n)
 
-    cmp eax, 0          ; comparar n con 0
-    je factorial_base_case ; si n == 0, caso base
+    cmp rdi, 1           ; Si n == 1, return 1
+    jle factorial_base_case
 
-    push eax            ; empujar el valor de n en la pila
-    dec eax             ; decrementa n
-    call factorial      ; llamada recursiva factorial(n-1)
-    pop ebx             ; recuperar el valor de n
-    mul ebx             ; eax = eax * ebx (multiplicar el resultado por n)
+    push rdi             ; Guardar n en la pila
+    dec rdi              ; n = n - 1
+    call factorial       ; Llamada recursiva con n - 1
+    pop rbx              ; Recuperar n
+
+    mul rbx              ; rax = rax * rbx (multiplicar el resultado por n)
+    mov [resultado], rax ; Guardar el resultado en la variable 'resultado'
     ret
 
 factorial_base_case:
-    mov eax, 1          ; factorial(0) = 1
+    mov rax, 1           ; factorial(1) = 1
+    mov [resultado], rax ; Guardar el resultado
     ret
+
 ```
 
 ### Corrida
 
-Introduce un número: 5
-El factorial es: 120
+[![asciicast](https://asciinema.org/a/tIqkCLMkpSqgCmubUnvEdf0Cc.svg)](https://asciinema.org/a/tIqkCLMkpSqgCmubUnvEdf0Cc)
 
 
 ## 8.- Serie de Fibonacci
@@ -967,87 +962,99 @@ section .data
 
 section .bss
     numero resb 10
-    divisor resd 1
-    resultado resb 1
 
 section .text
     global _start
 
 _start:
-    ; Imprimir el mensaje para introducir un número
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_input  ; puntero al mensaje
-    mov edx, 24         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
+    ; Imprimir mensaje para pedir el número
+    mov rax, 1          ; syscall para write
+    mov rdi, 1          ; descriptor de salida (stdout)
+    mov rsi, msg_input  ; puntero al mensaje
+    mov rdx, 24         ; longitud del mensaje
+    syscall
 
-    ; Leer el valor del número desde la entrada
-    mov eax, 3          ; syscall para read
-    mov ebx, 0          ; descriptor de entrada (stdin)
-    mov ecx, numero     ; puntero al buffer donde se almacena el número
-    mov edx, 10         ; tamaño máximo de caracteres a leer
-    int 0x80            ; interrupción del sistema
+    ; Leer el número desde la entrada
+    mov rax, 0          ; syscall para read
+    mov rdi, 0          ; descriptor de entrada (stdin)
+    mov rsi, numero     ; puntero al buffer donde se almacena el número
+    mov rdx, 10         ; tamaño máximo de caracteres a leer
+    syscall
 
-    ; Convertir el número desde ASCII a entero
-    mov eax, [numero]   ; cargar el número
-    sub eax, '0'        ; convertir de ASCII a número
+    ; Convertir el número de ASCII a entero
+    mov rsi, numero
+    mov rbx, 0          ; limpiar el registro de resultado
+    mov rcx, 10         ; base decimal
 
+convert:
+    movzx rdx, byte [rsi]  ; cargar el siguiente byte (carácter)
+    test rdx, rdx           ; verificar si es el fin de la cadena (nulo)
+    jz done_convert         ; si es 0 (fin de la cadena), salir
+    sub rdx, '0'            ; convertir de ASCII a valor numérico
+    imul rbx, rcx           ; rbx *= 10 (mover un dígito)
+    add rbx, rdx            ; rbx += dígito
+    inc rsi                 ; mover al siguiente carácter
+    jmp convert
+
+done_convert:
     ; Verificar si el número es primo
-    mov ebx, eax        ; copiar el número en ebx
-    mov ecx, 2          ; divisor comienza en 2
+    mov rdi, rbx            ; copiar el número en rdi
+    call check_prime
 
-check_prime:
-    cmp ecx, ebx        ; comparar el divisor con el número
-    jge prime           ; si el divisor es mayor o igual al número, es primo
-    mov edx, 0          ; limpiar edx
-    div ecx             ; dividir eax entre ecx (n / divisor)
-    cmp edx, 0          ; si el residuo es 0, no es primo
-    je not_prime        ; si hay residuo 0, no es primo
-    inc ecx             ; incrementar el divisor
-    jmp check_prime     ; continuar con el siguiente divisor
+    ; Imprimir si es primo o no
+    mov rax, 1          ; syscall para write
+    mov rdi, 1          ; descriptor de salida (stdout)
+    mov rsi, numero     ; imprimir número
+    mov rdx, 10         ; longitud
+    syscall
 
-prime:
-    ; Imprimir el mensaje de número primo
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, [numero]   ; cargar el número a imprimir
-    mov edx, 10         ; longitud del número
-    int 0x80            ; interrupción del sistema
-
-    ; Imprimir "es un número primo"
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_prime  ; mensaje "es un número primo"
-    mov edx, 23         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
+    ; Imprimir "es un número primo" o "no es un número primo"
+    mov rax, 1          ; syscall para write
+    mov rdi, 1          ; descriptor de salida (stdout)
+    mov rsi, msg_prime  ; mensaje de número primo
+    mov rdx, 23         ; longitud del mensaje
+    syscall
     jmp exit
 
-not_prime:
-    ; Imprimir el mensaje de número no primo
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, [numero]   ; cargar el número a imprimir
-    mov edx, 10         ; longitud del número
-    int 0x80            ; interrupción del sistema
+check_prime:
+    mov rbx, rdi
+    mov rcx, 2
 
-    ; Imprimir "no es un número primo"
-    mov eax, 4          ; syscall para write
-    mov ebx, 1          ; descriptor de salida (stdout)
-    mov ecx, msg_not_prime ; mensaje "no es un número primo"
-    mov edx, 25         ; longitud del mensaje
-    int 0x80            ; interrupción del sistema
+check_loop:
+    cmp rcx, rbx
+    jge prime
+    xor rdx, rdx
+    div rcx
+    cmp rdx, 0
+    je not_prime
+    inc rcx
+    jmp check_loop
+
+prime:
+    ret
+
+not_prime:
+    mov rdi, msg_not_prime
+    call print_msg
+    ret
+
+print_msg:
+    mov rax, 1          ; syscall para write
+    mov rdi, 1          ; descriptor de salida (stdout)
+    mov rsi, rdi        ; mensaje
+    mov rdx, 25         ; longitud del mensaje
+    syscall
+    ret
 
 exit:
-    ; Salir del programa
-    mov eax, 1          ; syscall para exit
-    xor ebx, ebx        ; código de salida 0
-    int 0x80            ; interrupción del sistema
+    mov rax, 60         ; syscall para exit
+    xor rdi, rdi        ; código de salida 0
+    syscall
+
 ```
 ### Corrida
 
-Introduce un número: 17
-17 es un número primo.
-
+[![asciicast](https://asciinema.org/a/OosFB0rNuKytQ27tinyCU2ms9.svg)](https://asciinema.org/a/OosFB0rNuKytQ27tinyCU2ms9)
 ## 10.-Invertir una cadena
 ### C# - InvertirCadena.cs
 
